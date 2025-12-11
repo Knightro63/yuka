@@ -28,16 +28,9 @@ class World {
   YukaFirstPersonControls? controls;
   three.AnimationMixer? mixer;
   
-  List obstacles = [];
+  List<yuka.GameEntity> obstacles = [];
   List bulletHoles = [];
-
-  late Map<String,dynamic> ui = {
-    'intro': threeJs?.domElement,
-    'crosshairs': threeJs?.domElement,
-    'loadingScreen': threeJs?.domElement
-  };
-
-  Map<String,dynamic> animations = {};
+  Map<String,three.AnimationAction?> animations = {};
 
 	World([this.threeJs]) {
 		camera = threeJs?.camera;
@@ -122,7 +115,7 @@ class World {
 		dynamic closestObstacle;
 
 		for ( int i = 0, l = obstacles.length; i < l; i ++ ) {
-			final obstacle = obstacles[ i ];
+			final obstacle = obstacles[ i ] as dynamic;
 
 			if ( obstacle.geometry.intersectRay( ray, obstacle.worldMatrix(), false, intersection['point'], intersection['normal'] ) != null ) {
 				final squaredDistance = intersection['point']!.squaredDistanceTo( ray.origin );
@@ -143,7 +136,6 @@ class World {
 	void _initScene() {
 		// camera
 		camera?.matrixAutoUpdate = false;
-		//camera?.add( assetManager.listener );
 
 		// scene
 		scene?.background = three.Color.fromHex32( 0xa0a0a0 );
@@ -166,8 +158,6 @@ class World {
 		dirLight.target?.position.setValues( 0, 0, - 25 );
 		dirLight.target?.updateMatrixWorld();
 		scene?.add( dirLight );
-
-		// this.scene.add( three.CameraHelper( dirLight.shadow.camera ) );
 	}
 
 	void _initGround() {
@@ -191,10 +181,9 @@ class World {
 		this.player = player;
 
 		// weapon
-		final weapon = player.weapon;
 		final weaponMesh = assetManager.models['weapon'];
-		weapon.setRenderComponent( weaponMesh, sync );
-		scene?.add( weaponMesh );
+    camera?.add(weaponMesh);
+		scene?.add( camera );
 
 		// animations
 		mixer = three.AnimationMixer( weaponMesh );
@@ -203,7 +192,7 @@ class World {
 		final shotAction = mixer?.clipAction( shotClip );
 		shotAction?.loop = three.LoopOnce;
 
-		animations['shot']= shotAction;
+		animations['shot'] = shotAction;
 
 		final reloadClip = assetManager.animations['reload'];
 		final reloadAction = mixer?.clipAction( reloadClip );
@@ -214,22 +203,7 @@ class World {
 
 	void _initControls() {
 		final player = this.player;
-
 		controls = YukaFirstPersonControls( player!, this );
-
-		final intro = ui['intro'];
-		final crosshairs = ui['crosshairs'];
-
-		controls?.addEventListener( 'lock', (){
-			intro.classList.add( 'hidden' );
-			crosshairs.classList.remove( 'hidden' );
-		} );
-
-		controls?.addEventListener( 'unlock', (){
-			intro.classList.remove( 'hidden' );
-			crosshairs.classList.add( 'hidden' );
-		} );
-
     controls!.connect();
 	}
 
@@ -242,6 +216,7 @@ class World {
 		final geometry = yuka.MeshGeometry( vertices, indices );
 		final target = Target( geometry );
 		target.position.set( 0, 5, - 20 );
+    target.rotation.fromEuler(math.pi,0,0);
 		target.setRenderComponent( targetMesh, sync );
 
 		add( target );
@@ -256,10 +231,6 @@ class World {
     renderComponent.position.setFromMatrixPosition(m);
     renderComponent.quaternion.setFromRotationMatrix(m);
     renderComponent.updateMatrix();
-  }
-
-  void onTransitionEnd( event ) {
-    event.target.remove();
   }
 
   void animate() {

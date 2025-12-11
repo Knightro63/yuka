@@ -23,8 +23,6 @@ class AssetManager {
 			final targetMesh = gltf?.scene.getObjectByName( 'LowPoly003__0' );
 			targetMesh?.geometry?.scale( 0.5, 0.5, 0.5 );
 			targetMesh?.geometry?.rotateX( math.pi * 0.5 );
-			targetMesh?.geometry?.rotateY( math.pi );
-			targetMesh?.geometry?.rotateZ( math.pi );
 			targetMesh?.matrixAutoUpdate = false;
 			targetMesh?.castShadow = true;
 
@@ -37,7 +35,7 @@ class AssetManager {
 			weaponMesh?.geometry?.scale( 0.1, 0.1, 0.1 );
 			weaponMesh?.geometry?.rotateX( math.pi * - 0.5 );
 			weaponMesh?.geometry?.rotateY( math.pi * 0.5 );
-			weaponMesh?.matrixAutoUpdate = false;
+      weaponMesh?.geometry?.translate(0.3, -0.3, -1);
 
 			models['weapon'] = weaponMesh;
 
@@ -47,7 +45,7 @@ class AssetManager {
 			final material = three.SpriteMaterial.fromMap( {'map': texture} );
       final sprite = three.Sprite( material );
 
-			sprite.position.setValues( 0, 0.13, - 0.4 );
+			sprite.position.setValues( 0.4, -0.2, - 2 );
 			sprite.scale.setValues( 0.3, 0.3, 0.3 );
 			sprite.visible = false;
 
@@ -56,7 +54,6 @@ class AssetManager {
 		} );
 
 		// bullet hole
-
 		final texture = await textureLoader.fromAsset( 'assets/textures/bulletHole.png' );
 		texture?.minFilter = three.LinearFilter;
 		final bulletHoleGeometry = three.PlaneGeometry( 0.1, 0.1 );
@@ -68,7 +65,6 @@ class AssetManager {
 		models['bulletHole'] = bulletHole;
 
 		// bullet line
-
 		final bulletLineGeometry = three.BufferGeometry();
 		final bulletLineMaterial = three.LineBasicMaterial.fromMap( { 'color': 0xfbf8e6 } );
 
@@ -80,7 +76,6 @@ class AssetManager {
 		models['bulletLine'] = bulletLine;
 
 		// ground
-
 		final groundGeometry = three.PlaneGeometry( 200, 200 );
 		groundGeometry.rotateX( - math.pi / 2 );
 		final groundMaterial = three.MeshPhongMaterial.fromMap( { 'color': 0x999999 } );
@@ -94,24 +89,23 @@ class AssetManager {
 
 	void _loadAnimations() {
 		final animations = this.animations;
-
 		// manually create some keyframes for testing
-		three.KeyframeTrack positionKeyframes, rotationKeyframes;
-		three.Quaternion q0, q1, q2;
 
 		// shot
-		positionKeyframes = three.VectorKeyframeTrack( '.position', [ 0, 0.05, 0.15, 0.3 ], [
-			0.3, - 0.3, - 1,
-			0.3, - 0.2, - 0.7,
-			0.3, - 0.305, - 1,
-		 	0.3, - 0.3, - 1 ]
+		final positionKeyframes = three.VectorKeyframeTrack( '.position', [ 0, 0.05, 0.15, 0.3 ], 
+    [
+			0, 0, 0,
+			0, -0.1, 0.3,
+			0, -0.005, 0,
+		 	0, 0, 0 
+    ]
 		);
 
-		q0 = three.Quaternion();
-		q1 = three.Quaternion().setFromAxisAngle( three.Vector3( 1, 0, 0 ), 0.2 );
-		q2 = three.Quaternion().setFromAxisAngle( three.Vector3( 1, 0, 0 ), - 0.02 );
+		final q0 = three.Quaternion();
+		final q1 = three.Quaternion().setFromAxisAngle( three.Vector3( 0.2, 0, 0 ), 0.2 );
+		final q2 = three.Quaternion().setFromAxisAngle( three.Vector3( 0.2, 0, 0 ),  -0.02 );
 
-		rotationKeyframes = three.QuaternionKeyframeTrack( '.rotation', [ 0, 0.05, 0.15, 0.3 ], [
+		final rotationKeyframes = three.QuaternionKeyframeTrack( '.quaternion', [ 0, 0.05, 0.15, 0.3 ], [
 			q0.x, q0.y, q0.z, q0.w,
 			q1.x, q1.y, q1.z, q1.w,
 			q2.x, q2.y, q2.z, q2.w,
@@ -122,23 +116,21 @@ class AssetManager {
 		animations['shot'] =  shotClip;
 
 		// reload
-		positionKeyframes = three.VectorKeyframeTrack( '.position', [ 0, 0.2, 1.3, 1.5 ], [
-			0.3, - 0.3, - 1,
-			0.3, - 0.6, - 1,
-			0.3, - 0.6, - 1,
-			0.3, - 0.3, - 1 ]
+		final positionKeyframes2 = three.VectorKeyframeTrack( '.position', [ 0, 0.2, 1.3, 1.5 ], [
+			0, 0, 0,
+			0, 0, 0,
+			0, 0, 0,
+			0, 0, 0 ]
 		);
 
-		q1 = three.Quaternion().setFromAxisAngle( three.Vector3( 1, 0, 0 ), - 0.4 );
-
-		rotationKeyframes = three.QuaternionKeyframeTrack( '.rotation', [ 0, 0.2, 1.3, 1.5 ], [
+		final q12 = three.Quaternion().setFromAxisAngle( three.Vector3( 0.5, 0, 0 ), -0.4 );
+		final rotationKeyframes2 = three.QuaternionKeyframeTrack( '.quaternion', [ 0, 0.2, 1.3, 1.5 ], [
 			q0.x, q0.y, q0.z, q0.w,
-			q1.x, q1.y, q1.z, q1.w,
-			q1.x, q1.y, q1.z, q1.w,
+			q12.x, q12.y, q12.z, q12.w,
+			q12.x, q12.y, q12.z, q12.w,
 			q0.x, q0.y, q0.z, q0.w ]
 		);
-
-		final reloadClip = three.AnimationClip( 'Reload', 1.5, [ positionKeyframes, rotationKeyframes ] );
+		final reloadClip = three.AnimationClip( 'Reload', 1.5, [ positionKeyframes2, rotationKeyframes2 ] );
 		animations['reload'] = reloadClip;
 	}
 }

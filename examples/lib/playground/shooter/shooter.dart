@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:examples/playground/shooter/world.dart';
 import 'package:flutter/material.dart';
 import 'package:three_js/three_js.dart' as three;
-import 'package:examples/src/gui.dart';
 
 class Shooter extends StatefulWidget {
   const Shooter({super.key});
@@ -11,12 +10,11 @@ class Shooter extends StatefulWidget {
 }
 
 class _State extends State<Shooter> {
-  late Gui panel;
   late three.ThreeJS threeJs;
+  late final World world;
 
   @override
   void initState() {
-    panel = Gui((){setState(() {});});
     threeJs = three.ThreeJS(
       onSetupComplete: (){
         setState(() {});
@@ -39,16 +37,48 @@ class _State extends State<Shooter> {
         alignment: AlignmentDirectional.topCenter,
         children: [
           threeJs.build(),
-          Text('The white fan represents the visibility range of the game entity.\nWhen the target is visible for the game entity, the target\'s color changes to green.'),
-          if(threeJs.mounted)Positioned(
-            top: 20,
-            right: 20,
-            child: SizedBox(
-              height: threeJs.height,
-              width: 240,
-              child: panel.render()
+          Text('This demo implements some basic concepts of First-Person shooters e.g. simulating bullets and collision detection.'),
+          Align(
+            alignment: Alignment.center,
+            child: Container(
+              height: 10,
+              width: 10,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Color(0xff992129).withValues(alpha:0.5),
+                  width: 2
+                ),
+                borderRadius: BorderRadius.circular(5)
+              ),
             )
           ),
+          if(threeJs.mounted)Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              width: 120,
+              height: 75,
+              color: Colors.grey[900],
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    world.player!.weapon.ui['roundsLeft'].toString(),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Container(
+                    width: 0.5,
+                    height: 75,
+                    color: Colors.white,
+                  ),
+                  Text(
+                    world.player!.weapon.ui['ammo'].toString(),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ],
+              )
+            ),
+          )
         ],
       ) 
     );
@@ -57,7 +87,7 @@ class _State extends State<Shooter> {
   Future<void> setup() async {
     threeJs.camera = three.PerspectiveCamera( 45, threeJs.width / threeJs.height, 0.1, 200 );
     threeJs.scene = three.Scene();
-    final World world = World(threeJs);
+    world = World(threeJs);
     await world.init();
     threeJs.addAnimationEvent((dt){
       world.animate();

@@ -156,6 +156,7 @@ class Blaster extends GameEntity {
 	void updateUI() {
 		ui['roundsLeft'] = roundsLeft;
 		ui['ammo'] = ammo;
+    world.threeJs?.onSetupComplete();
 	}
 }
 
