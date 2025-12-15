@@ -9,3 +9,6 @@ License: CC Attribution
 
 Target (Hackathon tournament) from https://sketchfab.com/models/e2f631c75c83440887d2613fe4aeb84c by NikiYani
 License: CC Attribution
+
+Shotgun from https://sketchfab.com/models/53b158b0d5a54b4491b09d1fb3058e29 by Harry_L
+License: CC Attribution

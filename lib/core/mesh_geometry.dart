@@ -7,6 +7,8 @@ import '../math/plane.dart';
 import '../math/ray.dart';
 import '../math/vector3.dart';
 
+final BoundingSphere _boundingSphere = BoundingSphere();
+
 /// Class for representing a polygon mesh. The faces consist of triangles.
 ///
 /// @author {@link https://github.com/Mugen87|Mugen87}
@@ -61,12 +63,11 @@ class MeshGeometry {
 	/// *null* is returned.
 	Vector3? intersectRay(Ray ray, Matrix4 worldMatrix, bool closest, Vector3 intersectionPoint, [Vector3? normal]) {
 		// check bounding sphere first in world space
-		boundingSphere.copy( boundingSphere ).applyMatrix4( worldMatrix );
-		if ( ray.intersectsBoundingSphere( boundingSphere ) ) {
+		_boundingSphere.copy( boundingSphere ).applyMatrix4( worldMatrix );
+		if ( ray.intersectsBoundingSphere( _boundingSphere ) ) {
 			// transform the ray into the local space of the obstacle
 			worldMatrix.getInverse( inverseMatrix );
 			rayLocal.copy( ray ).applyMatrix4( inverseMatrix );
-      //print(rayLocal.intersectsAABB( aabb ));
 			// check AABB in local space since its more expensive to convert an AABB to world space than a bounding sphere
 			if ( rayLocal.intersectsAABB( aabb ) ) {
 				// now perform more expensive test with all triangles of the geometry

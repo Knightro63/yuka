@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'package:examples/playground/shooter/player.dart';
-import 'package:examples/playground/shooter/world.dart';
+import 'package:examples/playground/common/player.dart';
+import './world.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'package:yuka/yuka.dart';
 
@@ -33,7 +33,7 @@ class YukaFirstPersonControls extends EventDispatcher {
   late final three.ThreeJS threeJs;
 
 	YukaFirstPersonControls(this.owner,this.world ):super(){
-    threeJs = world.threeJs!;
+    threeJs = world.threeJs;
   }
 
 	connect() {

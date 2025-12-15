@@ -15,6 +15,9 @@ dependencies:
   css:
     git:
       url: https://github.com/Knightro63/css.git
+  pointer_lock:
+    git:
+      url: https://github.com/helgoboss/pointer_lock.git
   three_js: ^0.2.5
   three_js_helpers: ^0.2.3
   yuka:
@@ -32,11 +35,14 @@ dependency_overrides:
       path: permission_handler_apple
   file_picker: ^10.1.9
   three_js_advanced_loaders:
-    path: ../../three_js-main/packages/three_js_advanced_loaders
+    path: ../../three_js/packages/three_js_advanced_loaders
   three_js_animations:
-    path: ../../three_js-main/packages/three_js_animations
+    path: ../../three_js/packages/three_js_animations
   three_js_core:
-    path: ../../three_js-main/packages/three_js_core
+    path: ../../three_js/packages/three_js_core
+  three_js_math:
+    path: ../../three_js/packages/three_js_math
+
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true

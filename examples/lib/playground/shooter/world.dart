@@ -1,8 +1,9 @@
-import 'package:examples/playground/shooter/yuka_first_person_controls.dart';
-import 'package:examples/playground/shooter/player.dart';
-import 'package:examples/playground/shooter/Ground.dart';
+import 'package:examples/playground/common/world.dart';
+import 'package:examples/playground/common/yuka_first_person_controls.dart';
+import 'package:examples/playground/common/player.dart';
+import 'package:examples/playground/common/ground.dart';
+import 'package:examples/playground/common/bullet.dart';
 import 'package:examples/playground/shooter/asset_manager.dart';
-import 'package:examples/playground/shooter/bullet.dart';
 import 'package:examples/playground/shooter/target.dart';
 import 'package:yuka/yuka.dart' as yuka;
 import 'dart:math' as math;
@@ -14,29 +15,18 @@ final intersection = {
 	'normal': yuka.Vector3()
 };
 
-class World {
+class ShooterWorld extends World{
   int maxBulletHoles = 20;
 
-  final entityManager = yuka.EntityManager();
-  final time = yuka.Time();
-  final assetManager = AssetManager();
-
-  Player? player;
-  three.ThreeJS? threeJs;
-  three.Scene? scene;
-  three.Camera? camera;
   YukaFirstPersonControls? controls;
   three.AnimationMixer? mixer;
-  
-  List<yuka.GameEntity> obstacles = [];
-  List bulletHoles = [];
-  Map<String,three.AnimationAction?> animations = {};
 
-	World([this.threeJs]) {
-		camera = threeJs?.camera;
-		scene = threeJs?.scene;
-	}
+	ShooterWorld.create(super.threeJs,super.assetManager);
 
+  factory ShooterWorld(three.ThreeJS threeJs){
+    return ShooterWorld.create(threeJs, SAssetManager());
+  }
+  @override
 	Future<void> init() async{
 		await assetManager.init().then((e){
 			_initScene();
@@ -48,6 +38,7 @@ class World {
     time.reset();
 	}
 
+  @override
 	void update() {
 		final delta = time.update().delta;
 		controls!.update( delta );
@@ -56,11 +47,12 @@ class World {
 		mixer!.update( delta );
 	}
 
+  @override
 	void add( entity ) {
 		entityManager.add( entity );
 
 		if ( entity.renderComponent != null ) {
-			scene?.add( entity.renderComponent );
+			scene.add( entity.renderComponent );
 		}
 
 		if ( entity?.geometry != null) {
@@ -68,19 +60,21 @@ class World {
 		}
 	}
 
+  @override
 	void remove( entity ) {
 		entityManager.remove( entity );
 
 		if ( entity.renderComponent != null ) {
-			scene?.remove( entity.renderComponent );
+			scene.remove( entity.renderComponent );
 		}
 
-		if ( entity.geometry  != null) {
+		if ( entity?.geometry != null) {
 			final index = obstacles.indexOf( entity );
 			if ( index != - 1 ) obstacles.removeAt( index );
 		}
 	}
 
+  @override
 	void addBullet( owner, yuka.Ray ray ) {
 		final bulletLine = assetManager.models['bulletLine'].clone();
 		final bullet = Bullet( owner, this, ray );
@@ -88,6 +82,7 @@ class World {
 		add( bullet );
 	}
 
+  @override
 	void addBulletHole(yuka.Vector3 position, yuka.Vector3 normal ) {
 		final bulletHole = assetManager.models['bulletHole'].clone();
 
@@ -102,13 +97,14 @@ class World {
 
 		if ( bulletHoles.length >= maxBulletHoles ) {
 			final toRemove = bulletHoles.removeAt(0);
-			scene?.remove( toRemove );
+			scene.remove( toRemove );
 		}
 
 		bulletHoles.add( bulletHole );
-		scene?.add( bulletHole );
+		scene.add( bulletHole );
 	}
 
+  @override
 	intersectRay(yuka.Ray ray, yuka.Vector3 intersectionPoint, [yuka.Vector3? normal] ) {
 		final obstacles = this.obstacles;
 		double minDistance = double.infinity;
@@ -135,16 +131,16 @@ class World {
 
 	void _initScene() {
 		// camera
-		camera?.matrixAutoUpdate = false;
+		camera.matrixAutoUpdate = false;
 
 		// scene
-		scene?.background = three.Color.fromHex32( 0xa0a0a0 );
-		scene?.fog = three.Fog( 0xa0a0a0, 10, 50 );
+		scene.background = three.Color.fromHex32( 0xa0a0a0 );
+		scene.fog = three.Fog( 0xa0a0a0, 10, 50 );
 
 		// lights
 		final hemiLight = three.HemisphereLight( 0xffffff, 0x444444, 0.8 );
 		hemiLight.position.setValues( 0, 100, 0 );
-		scene?.add( hemiLight );
+		scene.add( hemiLight );
 
 		final dirLight = three.DirectionalLight( 0xffffff, 0.8 );
 		dirLight.castShadow = true;
@@ -157,7 +153,7 @@ class World {
 		dirLight.position.setValues( 5, 7.5, - 10 );
 		dirLight.target?.position.setValues( 0, 0, - 25 );
 		dirLight.target?.updateMatrixWorld();
-		scene?.add( dirLight );
+		scene.add( dirLight );
 	}
 
 	void _initGround() {
@@ -182,8 +178,8 @@ class World {
 
 		// weapon
 		final weaponMesh = assetManager.models['weapon'];
-    camera?.add(weaponMesh);
-		scene?.add( camera );
+    camera.add(weaponMesh);
+		scene.add( camera );
 
 		// animations
 		mixer = three.AnimationMixer( weaponMesh );
@@ -222,10 +218,12 @@ class World {
 		add( target );
 	}
 
+  @override
   void sync(yuka.GameEntity entity, three.Object3D renderComponent ) {
     renderComponent.matrix.copyFromArray( entity.worldMatrix().elements );
   }
 
+  @override
   void syncCamera( yuka.GameEntity entity, three.Object3D renderComponent ) {
     final three.Matrix4 m = three.Matrix4().copyFromArray( entity.worldMatrix().elements);
     renderComponent.position.setFromMatrixPosition(m);
@@ -233,6 +231,7 @@ class World {
     renderComponent.updateMatrix();
   }
 
+  @override
   void animate() {
     update();
   }

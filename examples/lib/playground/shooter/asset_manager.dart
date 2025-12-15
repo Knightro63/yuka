@@ -1,14 +1,9 @@
+import 'package:examples/playground/common/asset_manager.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'dart:math' as math;
 
-class AssetManager {
-  final loadingManager = three.LoadingManager();
-	late final textureLoader = three.TextureLoader(manager: loadingManager );
-
-	final Map<String,dynamic> animations = {};
-	final Map<String,dynamic> models = {};
-
-
+class SAssetManager extends AssetManager{
+  @override
 	Future<void> init() async{
 		await _loadModels();
 		_loadAnimations();

@@ -187,7 +187,7 @@ class EntityManager {
 
 	/// Interface for game entities so they can send messages to other game entities.
 	EntityManager sendMessage(GameEntity sender, GameEntity receiver, String message, double delay, [Map<String,dynamic>? data ]) {
-		_messageDispatcher.dispatch( sender, receiver, message, delay, data );
+    _messageDispatcher.dispatch( sender, receiver, message, delay, data );
 		return this;
 	}
 

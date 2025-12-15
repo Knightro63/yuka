@@ -9,19 +9,20 @@ import 'vector3.dart';
 import 'dart:math' as math;
 
 final localRay = Ray();
-final _v1 = Vector3();
-final edge1 = Vector3();
-final edge2 = Vector3();
-final normal = Vector3();
-final size = Vector3();
-final matrix = Matrix4();
-final inverse = Matrix4();
-final aabb = AABB();
 
 /// Class representing a ray in 3D space.
 ///
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class Ray {
+  final v1 = Vector3();
+  final edge1 = Vector3();
+  final edge2 = Vector3();
+  final normal = Vector3();
+  final size = Vector3();
+  final matrix = Matrix4();
+  final inverse = Matrix4();
+  final aabb = AABB();
+
   late final Vector3 origin;
   late final Vector3 direction;
 
@@ -63,9 +64,9 @@ class Ray {
 	/// Performs a ray/sphere intersection test and stores the intersection point
 	/// to the given 3D vector. If no intersection is detected, *null* is returned.
 	Vector3? intersectBoundingSphere(BoundingSphere sphere, Vector3 result ) {
-		_v1.subVectors( sphere.center, origin );
-		final tca = _v1.dot( direction );
-		final d2 = _v1.dot( _v1 ) - tca * tca;
+		v1.subVectors( sphere.center, origin );
+		final tca = v1.dot( direction );
+		final d2 = v1.dot( v1 ) - tca * tca;
 		final radius2 = sphere.radius * sphere.radius;
 
 		if ( d2 > radius2 ) return null;
@@ -93,17 +94,18 @@ class Ray {
 	/// Performs a ray/sphere intersection test. Returns either true or false if
 	/// there is a intersection or not.
 	bool intersectsBoundingSphere(BoundingSphere sphere ) {
+    final v1 = Vector3();
 		double squaredDistanceToPoint;
 
-		final directionDistance = _v1.subVectors( sphere.center, origin ).dot( direction );
+		final directionDistance = v1.subVectors( sphere.center, origin ).dot( direction );
 
 		if ( directionDistance < 0 ) {
 			// sphere's center behind the ray
 			squaredDistanceToPoint = origin.squaredDistanceTo( sphere.center );
 		} 
     else {
-			_v1.copy( direction ).multiplyScalar( directionDistance ).add( origin );
-			squaredDistanceToPoint = _v1.squaredDistanceTo( sphere.center );
+			v1.copy( direction ).multiplyScalar( directionDistance ).add( origin );
+			squaredDistanceToPoint = v1.squaredDistanceTo( sphere.center );
 		}
 
 
@@ -173,7 +175,7 @@ class Ray {
 	/// Performs a ray/AABB intersection test. Returns either true or false if
 	/// there is a intersection or not.
 	bool intersectsAABB(AABB aabb ) {
-		return intersectAABB( aabb, _v1 ) != null;
+		return intersectAABB( aabb, v1 ) != null;
 	}
 
 	/// Performs a ray/plane intersection test and stores the intersection point
@@ -228,7 +230,7 @@ class Ray {
 		// the idea is to perform the intersection test in the local space
 		// of the OBB.
 		obb.getSize( size );
-		aabb.fromCenterAndSize( _v1.set( 0, 0, 0 ), size );
+		aabb.fromCenterAndSize( v1.set( 0, 0, 0 ), size );
 
 		matrix.fromMatrix3( obb.rotation );
 		matrix.setPosition( obb.center );
@@ -249,7 +251,7 @@ class Ray {
 	/// Performs a ray/OBB intersection test. Returns either true or false if
 	/// there is a intersection or not.
 	bool intersectsOBB(OBB obb ) {
-		return intersectOBB( obb, _v1 ) != null;
+		return intersectOBB( obb, v1 ) != null;
 	}
 
 	/// Performs a ray/convex hull intersection test and stores the intersection point
@@ -311,7 +313,7 @@ class Ray {
 	/// Performs a ray/convex hull intersection test. Returns either true or false if
 	/// there is a intersection or not.
 	bool intersectsConvexHull(ConvexHull convexHull ) {
-		return intersectConvexHull( convexHull, _v1 ) != null;
+		return intersectConvexHull( convexHull, v1 ) != null;
 	}
 
 	/// Performs a ray/triangle intersection test and stores the intersection point
@@ -341,15 +343,15 @@ class Ray {
 			return null;
 		}
 
-		_v1.subVectors( origin, a );
-		final ddQxE2 = sign * direction.dot( edge2.crossVectors( _v1, edge2 ) );
+		v1.subVectors( origin, a );
+		final ddQxE2 = sign * direction.dot( edge2.crossVectors( v1, edge2 ) );
 
 		// b1 < 0, no intersection
 		if ( ddQxE2 < 0 ) {
 			return null;
 		}
 
-		final ddE1xQ = sign * direction.dot( edge1.cross( _v1 ) );
+		final ddE1xQ = sign * direction.dot( edge1.cross( v1 ) );
 
 		// b2 < 0, no intersection
 		if ( ddE1xQ < 0 ) {
@@ -362,7 +364,7 @@ class Ray {
 		}
 
 		// line intersects triangle, check if ray does
-		final qdN = - sign * _v1.dot( normal );
+		final qdN = - sign * v1.dot( normal );
 
 		// t < 0, no intersection
 		if ( qdN < 0 ) {

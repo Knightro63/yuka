@@ -1,4 +1,3 @@
-import '../constants.dart';
 import '../core/console_logger/console_platform.dart';
 import '../core/game_entity.dart';
 import '../math/vector3.dart';
@@ -181,7 +180,7 @@ class SteeringManager {
 					break;
 				default:
 					// handle custom type
-					final ctor = _typesMap.get( type );
+					final ctor = _typesMap[type];
 
 					if ( ctor != null ) {
 						behavior = ctor().fromJSON( behaviorJSON );

@@ -98,5 +98,10 @@ const Map<String,Map<String,Map<String,String>>> filesJson = {
       'name': 'Shooter',
       'description': 'Usage of triggers to dynamically generate actions in the game world.' 
     },
+    'hideseek':{
+      'name': 'Hide and Seek',
+      'description': 'A little game that experiments with steering and shooter mechanics.' 
+    },
+
   },
 };

@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import '../constants.dart';
 import 'math_utils.dart';
 import 'matrix4.dart';
 import 'quaternion.dart';
@@ -9,19 +8,20 @@ import 'dart:math' as math;
 final m1 = Matrix3();
 final m2 = Matrix3();
 
-final localRight = Vector3();
-final worldRight = Vector3();
-final perpWorldUp = Vector3();
-final temp = Vector3();
-
-final colVal = [ 2, 2, 1 ];
-final rowVal = [ 1, 0, 0 ];
-
 /// Class representing a 3x3 matrix. The elements of the matrix
 /// are stored in column-major order.
 ///
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class Matrix3 {
+  final worldUp = Vector3( 0, 1, 0 );
+  final localRight = Vector3();
+  final worldRight = Vector3();
+  final perpWorldUp = Vector3();
+  final temp = Vector3();
+
+  final colVal = [ 2, 2, 1 ];
+  final rowVal = [ 1, 0, 0 ];
+
   final Float32List elements = Float32List.fromList([
     1, 0, 0,
     0, 1, 0,
@@ -143,14 +143,14 @@ class Matrix3 {
 		localRight.crossVectors( localUp, localForward ).normalize();
 
 		// orthonormal linear basis A { localRight, localUp, localForward } for the object local space
-		worldRight.crossVectors( WorldUp, targetDirection ).normalize();
+		worldRight.crossVectors( worldUp, targetDirection ).normalize();
 
 		if ( worldRight.squaredLength == 0 ) {
 			// handle case when it's not possible to build a basis from targetDirection and worldUp
 			// slightly shift targetDirection in order to avoid collinearity
 
 			temp.copy( targetDirection ).addScalar( MathUtils.epsilon );
-			worldRight.crossVectors( WorldUp, temp ).normalize();
+			worldRight.crossVectors( worldUp, temp ).normalize();
 		}
 
 		perpWorldUp.crossVectors( targetDirection, worldRight ).normalize();

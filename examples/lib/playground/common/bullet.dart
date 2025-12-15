@@ -1,4 +1,5 @@
-import 'package:examples/playground/shooter/world.dart';
+import 'package:examples/playground/common/world.dart';
+import 'package:examples/playground/hideseek/enemy.dart';
 import 'package:yuka/yuka.dart';
 import 'dart:math' as math;
 
@@ -10,7 +11,7 @@ class Bullet extends MovingEntity {
   double lifetime = 1;
   double currentTime = 0;
 
-  dynamic owner;
+  GameEntity owner;
   final World world;
   MeshGeometry? geometry;
 
@@ -43,7 +44,6 @@ class Bullet extends MovingEntity {
 			super.update( delta );
 
 			final entity = world.intersectRay( _ray, intersectionPoint, normal );
-
 			if ( entity != null ) {
 				// calculate distance from origin to intersection point
 				final distanceToIntersection = _ray.origin.squaredDistanceTo( intersectionPoint );
@@ -54,7 +54,7 @@ class Bullet extends MovingEntity {
 					owner.sendMessage( entity, 'hit' );
 
 					// add visual feedback
-					world.addBulletHole( intersectionPoint, normal );
+          if (entity is! Enemy) world.addBulletHole( intersectionPoint, normal);
 
 					// remove bullet from world
 					world.remove( this );

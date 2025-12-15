@@ -9,6 +9,7 @@ import 'package:examples/math/orientation.dart';
 import 'package:examples/memory_system/line_of_sight.dart';
 import 'package:examples/memory_system/memory_system.dart';
 import 'package:examples/misc/trigger.dart';
+import 'package:examples/playground/hideseek/hideseek.dart';
 import 'package:examples/playground/shooter/shooter.dart';
 import 'package:examples/steering/arriving.dart';
 import 'package:examples/steering/flee.dart';
@@ -230,6 +231,9 @@ class MyAppState extends State<MyApp> {
               },
               '/shooter':(BuildContext context) {
                 return const Shooter();
+              },
+              '/hideseek':(BuildContext context) {
+                return const HideSeek();
               },
             }
           ),

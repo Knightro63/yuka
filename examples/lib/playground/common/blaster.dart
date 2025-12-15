@@ -1,4 +1,4 @@
-import 'package:examples/playground/shooter/world.dart';
+import './world.dart';
 import 'package:yuka/yuka.dart';
 import 'dart:math' as math;
 import 'package:three_js/three_js.dart' as three;
@@ -14,6 +14,7 @@ class Blaster extends GameEntity {
   final intersectionPoint = Vector3();
   final target = Vector3();
   BlasterStatus status = BlasterStatus.ready;
+  final scatter = Vector3();
 
   int roundsLeft = 12;
   int roundsPerClip = 12;
@@ -23,6 +24,7 @@ class Blaster extends GameEntity {
   double shotTime = 0.2;
   double reloadTime = 1.5;
   double muzzleFireTime = 0.1;
+  double scatterFactor = 0.03;
 
   double currentTime = 0;
   double endTimeShot = double.infinity;
@@ -31,6 +33,7 @@ class Blaster extends GameEntity {
 
   late final three.Sprite muzzleSprite;
   final World world;
+  bool isShotgun;
 
   late Map<String,dynamic> ui = {
     'roundsLeft': roundsLeft,
@@ -39,7 +42,7 @@ class Blaster extends GameEntity {
 
   dynamic owner;
 
-	Blaster( this.owner, this.world ):super() {
+	Blaster( this.owner, this.world, [this.isShotgun = false]):super() {
 		muzzleSprite = world.assetManager.models['muzzle'];
 		updateUI();
 	}
@@ -144,6 +147,19 @@ class Blaster extends GameEntity {
 			ray.direction.subVectors( target, ray.origin ).normalize();
 			world.addBullet( owner, ray );
 
+      if(isShotgun){
+        for (int i = 0; i < 6; i ++ ) {
+          final r = ray.clone();
+
+          scatter.x = ( 1 - math.Random().nextDouble() * 2 ) * scatterFactor;
+          scatter.y = ( 1 - math.Random().nextDouble() * 2 ) * scatterFactor;
+          scatter.z = ( 1 - math.Random().nextDouble() * 2 ) * scatterFactor;
+
+          r.direction.add( scatter ).normalize();
+          world.addBullet( owner, r );
+        }
+      }
+
 			// adjust ammo
 			roundsLeft --;
 			endTimeShot = currentTime + shotTime;
@@ -156,7 +172,7 @@ class Blaster extends GameEntity {
 	void updateUI() {
 		ui['roundsLeft'] = roundsLeft;
 		ui['ammo'] = ammo;
-    world.threeJs?.onSetupComplete();
+    world.threeJs.onSetupComplete();
 	}
 }
 
