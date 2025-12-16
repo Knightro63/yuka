@@ -1,5 +1,5 @@
 import 'package:examples/playground/common/world.dart';
-import 'package:examples/playground/common/yuka_first_person_controls.dart';
+import 'package:examples/common/yuka_first_person_controls.dart';
 import 'package:examples/playground/common/player.dart';
 import 'package:examples/playground/common/ground.dart';
 import 'package:examples/playground/common/bullet.dart';
@@ -199,7 +199,7 @@ class ShooterWorld extends World{
 
 	void _initControls() {
 		final player = this.player;
-		controls = YukaFirstPersonControls( player!, this );
+		controls = YukaFirstPersonControls( player!, threeJs );
     controls!.connect();
 	}
 

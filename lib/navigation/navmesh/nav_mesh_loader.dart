@@ -1,7 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:async';
+import 'dart:convert' as convert;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:yuka/navigation/navmesh/file_loader.dart';
 import 'package:yuka/yuka.dart';
-
-import '../../math/polygon.dart';
-import '../../math/vector3.dart';
+import 'package:http/http.dart' as http;
 
 /// Class for loading navigation meshes as glTF assets. The loader supports
 /// *glTF* and *glb* files, embedded buffers, index and non-indexed geometries.
@@ -10,130 +15,176 @@ import '../../math/vector3.dart';
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class NavMeshLoader {
 
-	/**
-	* Loads a {@link NavMesh navigation mesh} from the given URL. The second parameter can be used
-	* to influence the parsing of the navigation mesh.
-	*
-	* @param {String} url - The URL of the glTF asset.
-	* @param {Object} options - The (optional) configuration object.
-	* @return {Promise} A promise representing the loading and parsing process.
-	*/
-	load( url, options ) {
+  Future<NavMesh?> fromNetwork(Uri uri, [Map<String,dynamic>? options]) async{
+    try{
+      final http.Response response = await http.get(uri);
+      final bytes = response.bodyBytes;
+      return _parse(bytes,options);
+    }catch(e){
+      yukaConsole.error('Yuka error: $e');
+      return null;
+    }
+  }
+  Future<NavMesh?> fromFile(File file, [Map<String,dynamic>? options]) async{
+    final Uint8List data = await file.readAsBytes();
+    return _parse(data,options);
+  }
+  Future<NavMesh?> fromPath(String filePath, [Map<String,dynamic>? options]) async{
+    try{
+      final File file = File(filePath);
+      final Uint8List data = await file.readAsBytes();
+      return _parse(data,options);
+    }catch(e){
+      yukaConsole.error('FileLoader error from path: $filePath');
+      return null;
+    }
+  }
+  Future<NavMesh?> fromAsset(String asset, {String? package, Map<String,dynamic>? options}) async{
+    asset = package != null?'packages/$package/$asset':asset;
+    try{
+      ByteData fileData = await rootBundle.load(asset);
+      final bytes = fileData.buffer.asUint8List();
+      return _parse(bytes,options);
+    }
+    catch(e){
+      yukaConsole.error('Yuka error: $e');
+      return null;
+    }
+  }
+  Future<NavMesh?> fromBytes(Uint8List bytes, [Map<String,dynamic>? options]) async{
+    return _parse(bytes,options);
+  }
+  Future<NavMesh?> unknown(dynamic url, [Map<String,dynamic>? options]) async{
+    if(url is File){
+      return fromFile(url);
+    }
+    else if(url is Uri){
+      return fromNetwork(url);
+    }
+    else if(url is Uint8List){
+      return fromBytes(url);
+    }
+    else if(url is String){
+      RegExp dataUriRegex = RegExp(r"^data:(.*?)(;base64)?,(.*)$");
+      if(url.contains('http://') || url.contains('https://')){  
+        return fromNetwork(Uri.parse(url));
+      }
+      else if(url.contains('assets')){
+        return fromAsset(url);
+      }
+      else if(dataUriRegex.hasMatch(url)){
+        RegExpMatch? dataUriRegexResult = dataUriRegex.firstMatch(url);
+        String? data = dataUriRegexResult!.group(3)!;
 
-		return Promise( ( resolve, reject ) => {
+        return fromBytes(convert.base64.decode(data));
+      }
+      else{
+        return fromPath(url);
+      }
+    }
 
-			fetch( url )
+    return null;
+  }
 
-				.then( response => {
+  String decodeText(List<int> array) {
+    final s = const convert.Utf8Decoder().convert(array);
+    return s;
+  }
 
-					if ( response.status >= 200 && response.status < 300 ) {
-
-						return response.arrayBuffer();
-
-					} else {
-
-						final error = Error( response.statusText || response.status );
-						error.response = response;
-						return Promise.reject( error );
-
-					}
-
-				} )
-
-				.then( ( arrayBuffer ) => {
-
-					return this.parse( arrayBuffer, url, options );
-
-				} )
-
-				.then( ( data ) => {
-
-					resolve( data );
-
-				} )
-
-				.catch( ( error ) => {
-
-					Logger.error( 'YUKA.NavMeshLoader: Unable to load navigation mesh.', error );
-
-					reject( error );
-
-				} );
-
-		} );
-
-	}
-
-	/**
-	* Use this method if you are loading the contents of a navmesh not via {@link NavMeshLoader#load}.
-	* This is for example useful in a node environment.
-	*
-	* It's mandatory to use glb files with embedded buffer data if you are going to load nav meshes
-	* in node.js.
-	*
-	* @param {ArrayBuffer} arrayBuffer - The array buffer.
-	* @param {String} url - The (optional) URL.
-	* @param {Object} options - The (optional) configuration object.
-	* @return {Promise} A promise representing the parsing process.
-	*/
-	parse( arrayBuffer, url, options ) {
+	Future<NavMesh?> _parse( Uint8List array, [Map<String,dynamic>? options] ) async{
 		final parser = Parser();
-		final decoder = TextDecoder();
-		let data;
+		//String data = String.fromCharCodes(arrayBuffer).toString();
 
-		final magic = decoder.decode( Uint8Array( arrayBuffer, 0, 4 ) );
-
-		if ( magic == BINARY_EXTENSION_HEADER_MAGIC ) {
-			parser.parseBinary( arrayBuffer );
-			data = parser.extensions.get( 'BINARY' ).content;
-		} 
+    late final String content;
+    late final String magic;
+    if(kIsWasm){
+      final list = array.buffer.asUint8List().sublist(0, 4);
+      magic = decodeText(list);
+    }
+    else{
+      magic = decodeText(Uint8List.view(array.buffer, 0, 4));
+    }
+    
+    if (magic == 'glTF') {
+			parser.parseBinary( array.buffer );
+			content = parser.extensions['BINARY']['content'];
+    } 
     else {
-			data = decoder.decode( Uint8Array( arrayBuffer ) );
-		}
+      content = decodeText(array);
+    }
 
-		final json = JSON.parse( data );
-		if ( json.asset == null || json.asset.version[ 0 ] < 2 ) {
+		final Map<String, dynamic> json = convert.jsonDecode(content);
+		if ( json['asset'] == null || num.parse(json["asset"]["version"]) < 2.0 ) {
 			throw( 'YUKA.NavMeshLoader: Unsupported asset version.' );
 		} 
     else {
-			final path = extractUrlBase( url );
-			return parser.parse( json, path, options );
+			return await parser.parse( json, options );
 		}
 	}
 }
 
 class Parser {
+  final behl = 12;
+  final bect = { 'JSON': 0x4E4F534A, 'BIN': 0x004E4942 };
+  final webglTypeSize = {
+    'SCALAR': 1,
+    'VEC2': 2,
+    'VEC3': 3,
+    'VEC4': 4,
+    'MAT2': 4,
+    'MAT3': 9,
+    'MAT4': 16
+  };
+
+  dynamic view(int type, ByteBuffer buffer, int offset, int length) {
+    if (type == 5120) {
+      return Int8List.view(buffer, offset, length);
+    } else if (type == 5121) {
+      return Uint8List.view(buffer, offset, length);
+    } else if (type == 5122) {
+      return Int16List.view(buffer, offset, length);
+    } else if (type == 5123) {
+      return Uint16List.view(buffer, offset, length);
+    } else if (type == 5125) {
+      return Uint32List.view(buffer, offset, length);
+    } else if (type == 5126) {
+      return Float32List.view(buffer, offset, length);
+    } else {
+      throw (" GLTFHelper GLTypeData view type: $type is not support ...");
+    }
+  }
+
+  final fileLoader = YukaFileLoader();
   late Map<String,dynamic> json;
   Map<String, dynamic>? options;
   Map<String,dynamic> cache = {};
   Map<String,dynamic> extensions = {};
 
-	parse(Map<String,dynamic> json, path, Map<String,dynamic>? options ) {
+	Future<NavMesh?> parse(Map<String,dynamic> json, [Map<String,dynamic>? options] ) async{
 		this.json = json;
     this.options = options;
 
 		// read the first mesh in the glTF file
-		return getDependency( 'mesh', 0 ).then( ( data ){
-			// parse the raw geometry data into a bunch of polygons
-			final polygons = parseGeometry( data );
+		final data = await getDependency( 'mesh', 0 );
 
-			// create and config navMesh
-			final navMesh = NavMesh();
+    // parse the raw geometry data into a bunch of polygons
+    final polygons = parseGeometry( data );
 
-			if ( options != null) {
-				if ( options['epsilonCoplanarTest'] != null ) navMesh.epsilonCoplanarTest = options['epsilonCoplanarTest'];
-				if ( options['mergeConvexRegions'] != null ) navMesh.mergeConvexRegions = options['mergeConvexRegions'];
-			}
+    // create and config navMesh
+    final navMesh = NavMesh();
 
-			// use polygons to setup the nav mesh
-			return navMesh.fromPolygons( polygons );
+    if ( options != null) {
+      if ( options['epsilonCoplanarTest'] != null ) navMesh.epsilonCoplanarTest = options['epsilonCoplanarTest'];
+      if ( options['mergeConvexRegions'] != null ) navMesh.mergeConvexRegions = options['mergeConvexRegions'];
+    }
 
-		} );
-	}
+    // use polygons to setup the nav mesh
+    return navMesh.fromPolygons( polygons );
+  }
 
-	parseGeometry( data ) {
-		final index = data.index;
-		final position = data.position;
+	List<Polygon> parseGeometry(Map<String,dynamic> data ) {
+		final index = data['index'];
+		final position = data['position'];
 
 		final vertices = <Vector3>[];
 		final polygons = <Polygon>[];
@@ -150,8 +201,7 @@ class Parser {
 		}
 
 		// polygons
-		if ( index ) {
-
+		if ( index != null) {
 			// indexed geometry
 			for ( int i = 0, l = index.length; i < l; i += 3 ) {
 				final a = index[ i + 0 ];
@@ -176,7 +226,7 @@ class Parser {
 		return polygons;
 	}
 
-	getDependencies(String type ) async {
+	Future getDependencies(String type ) async {
     final dependencies = cache[type];
 
     if (dependencies != null) {
@@ -186,9 +236,7 @@ class Parser {
     final defs = json[type + (type == 'mesh' ? 'es' : 's')] ?? [];
     List otherDependencies = [];
 
-    int l = defs.length;
-
-    for (int i = 0; i < l; i++) {
+    for (int i = 0; i < defs.length; i++) {
       final dep1 = await getDependency(type, i);
       otherDependencies.add(dep1);
     }
@@ -198,7 +246,7 @@ class Parser {
     return otherDependencies;
 	}
 
-	getDependency(String type, int index ) {
+	Future getDependency(String type, int index ) async{
 		final cache = this.cache;
 		final key = '$type:$index';
 
@@ -228,7 +276,7 @@ class Parser {
 		return dependency;
 	}
 
-  loadBuffer(int bufferIndex) async {
+  Future loadBuffer(int bufferIndex) async {
     Map<String, dynamic> bufferDef = json["buffers"][bufferIndex];
     final loader = fileLoader;
 
@@ -238,85 +286,115 @@ class Parser {
 
     // If present, GLB container is required to be the first buffer.
     if (bufferDef["uri"] == null && bufferIndex == 0) {
-      return extensions[gltfExtensions["KHR_BINARY_GLTF"]].body;
+      return extensions['BINARY']['body'];
     }
 
     final options = this.options;
-    if(bufferDef["uri"] != null && options["path"] != null){
-      final url = LoaderUtils.resolveURL(bufferDef["uri"], options["path"]);
+    if(bufferDef["uri"] != null && options?["path"] != null){
+      final url = resolveURL(bufferDef["uri"], options?["path"]);
       final res = await loader.unknown(url);
 
-      return res?.data;
+      return res?.data.buffer;
     }
 
     return null;
   }
 
-	loadBufferView(int index ) {
+  String resolveURL(String url, String path) {
+    // Host Relative URL
+    final reg1 = RegExp("^https?://", caseSensitive: false);
+    if (reg1.hasMatch(path) &&
+        RegExp("^/", caseSensitive: false).hasMatch(url)) {
+      final reg2 = RegExp("(^https?://[^/]+).*", caseSensitive: false);
+
+      final matches = reg2.allMatches(path);
+
+      for (RegExpMatch match in matches) {
+        path = path.replaceFirst(match.group(0)!, match.group(1)!);
+      }
+
+      yukaConsole.info("GLTFHelper.resolveURL todo debug.");
+      // path = path.replace( RegExp("(^https?:\/\/[^\/]+).*", caseSensitive: false), '$1' );
+    }
+
+    // Absolute URL http://,https://,//
+    if (RegExp("^(https?:)?//", caseSensitive: false).hasMatch(url)) {
+      return url;
+    }
+
+    // Data URI
+    if (RegExp(r"^data:.*,.*$", caseSensitive: false).hasMatch(url)) return url;
+
+    // Blob URL
+    if (RegExp(r"^blob:.*$", caseSensitive: false).hasMatch(url)) return url;
+
+    // Relative URL
+    return path + url;
+  }
+
+	Future loadBufferView(int index ) async{
 		final json = this.json;
 		final definition = json['bufferViews'][ index ];
 
-		return getDependency( 'buffer', definition['buffer'] ).then( ( buffer ){
-			final byteLength = definition['byteLength'] ?? 0;
-			final byteOffset = definition['byteOffset'] ?? 0;
-			return buffer.subList( byteOffset, byteOffset + byteLength );
-		} );
+		final buffer = await getDependency( 'buffer', definition['buffer'] );
+
+    final byteLength = definition['byteLength'] ?? 0;
+    final byteOffset = definition['byteOffset'] ?? 0;
+    return Uint8List.view(buffer).sublist( byteOffset, byteOffset + byteLength );
 	}
 
-	loadAccessor(int index ) {
+	Future loadAccessor(int index ) async {
 		final json = this.json;
 		final definition = json['accessors'][ index ];
 
-		return getDependency( 'bufferView', definition['bufferView'] ).then( ( bufferView ){
-			final itemSize = WEBGL_TYPE_SIZES[ definition['type'] ];
-			final TypedArray = WEBGL_COMPONENT_TYPES[ definition['componentType'] ];
-			final byteOffset = definition['byteOffset'] ?? 0;
-			return TypedArray( bufferView, byteOffset, definition['count'] * itemSize );
-		} );
+		final bufferView = await getDependency( 'bufferView', definition['bufferView'] );
+
+    final itemSize = webglTypeSize[ definition['type'] ];
+    //final typedArray = webglComponentTypes[ definition['componentType'] ] as Float32List;
+    final byteOffset = definition['byteOffset'] ?? 0;
+    return view(definition['componentType'], bufferView.buffer, byteOffset, byteOffset+(definition['count'] * itemSize) );
 	}
 
-	loadMesh(int index ) {
+	Future<Map<String,dynamic>> loadMesh(int index ) async{
 		final json = this.json;
 		final definition = json['meshes'][ index ];
 
-		return getDependencies( 'accessor' ).then( ( accessors ){
-			// assuming a single primitive
-			final primitive = definition['primitives'][ 0 ];
+		final accessors = await getDependencies( 'accessor' );
+    // assuming a single primitive
+    final primitive = definition['primitives'][ 0 ];
 
-			if ( primitive['mode'] != null && primitive['mode'] != 4 ) {
-				throw( 'YUKA.NavMeshLoader: Invalid geometry format. Please ensure to represent your geometry as triangles.' );
-			}
+    if ( primitive['mode'] != null && primitive['mode'] != 4 ) {
+      throw( 'YUKA.NavMeshLoader: Invalid geometry format. Please ensure to represent your geometry as triangles.' );
+    }
 
-			return {
-				'index': accessors[ primitive['indices'] ],
-				'position': accessors[ primitive['attributes']['POSITION'] ],
-				'normal': accessors[ primitive['attributes']['NORMAL'] ]
-			};
-		} );
+    return {
+      'index': accessors[ primitive['indices'] ],
+      'position': accessors[ primitive['attributes']['POSITION'] ],
+      'normal': accessors[ primitive['attributes']['NORMAL'] ]
+    };
 	}
 
-	parseBinary( data ) {
-		final chunkView = DataView( data, BINARY_EXTENSION_HEADER_LENGTH );
-		let chunkIndex = 0;
+	void parseBinary(ByteBuffer data ) {
+		final ByteData chunkView = ByteData.view(data, behl);
+		int chunkIndex = 0;
 
-		final decoder = TextDecoder();
-		let content = null;
-		let body = null;
+		String? content;
+		dynamic body;
 
-		while ( chunkIndex < chunkView.byteLength ) {
-			final chunkLength = chunkView.getUint32( chunkIndex, true );
+		while ( chunkIndex < chunkView.lengthInBytes ) {
+			final int chunkLength = chunkView.getUint32( chunkIndex, Endian.little );
+			chunkIndex += 4;
+      
+			final int chunkType = chunkView.getUint32( chunkIndex, Endian.little );
 			chunkIndex += 4;
 
-			final chunkType = chunkView.getUint32( chunkIndex, true );
-			chunkIndex += 4;
-
-			if ( chunkType == BINARY_EXTENSION_CHUNK_TYPES['JSON'] ) {
-				final contentArray = Uint8Array( data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength );
-				content = decoder.decode( contentArray );
+			if ( chunkType == bect['JSON'] ) {
+				final contentArray = Uint8List.view(data, behl + chunkIndex, chunkLength);
+				content = String.fromCharCodes(contentArray).toString();//decoder.decode( contentArray );
 			} 
-      else if ( chunkType == BINARY_EXTENSION_CHUNK_TYPES['BIN'] ) {
-				final byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex;
-				body = data.slice( byteOffset, byteOffset + chunkLength );
+      else if ( chunkType == bect['BIN'] ) {
+				final byteOffset = behl + chunkIndex;
+				body = Uint8List.view(data).sublist(byteOffset, byteOffset + chunkLength).buffer;
 			}
 
 			chunkIndex += chunkLength;
@@ -324,44 +402,4 @@ class Parser {
 
 		extensions['BINARY'] = { 'content': content, 'body': body };
 	}
-
-  // helper functions
-  extractUrlBase( [String url = '' ]) {
-    final index = url.lastIndexOf( '/' );
-    if ( index == - 1 ) return './';
-    return url.substr( 0, index + 1 );
-  }
-
-  resolveURI( uri, path ) {
-    if ( typeof uri != 'string' || uri == '' ) return '';
-    if ( /^(https?:)?\/\//i.test( uri ) ) return uri;
-    if ( /^data:.*,.*$/i.test( uri ) ) return uri;
-    if ( /^blob:.*$/i.test( uri ) ) return uri;
-    return path + uri;
-  }
 }
-
-//
-
-final WEBGL_TYPE_SIZES = {
-	'SCALAR': 1,
-	'VEC2': 2,
-	'VEC3': 3,
-	'VEC4': 4,
-	'MAT2': 4,
-	'MAT3': 9,
-	'MAT4': 16
-};
-
-final WEBGL_COMPONENT_TYPES = {
-	5120: Int8Array,
-	5121: Uint8Array,
-	5122: Int16Array,
-	5123: Uint16Array,
-	5125: Uint32Array,
-	5126: Float32Array
-};
-
-final BINARY_EXTENSION_HEADER_MAGIC = 'glTF';
-final BINARY_EXTENSION_HEADER_LENGTH = 12;
-final BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4E4F534A, BIN: 0x004E4942 };

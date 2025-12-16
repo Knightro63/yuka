@@ -63,7 +63,7 @@ export './navigation/extra/graph_utils.dart';
 export './navigation/navmesh/corridor.dart';
 export './navigation/navmesh/cost_table.dart';
 export './navigation/navmesh/nav_mesh.dart';
-//export './navigation/navmesh/nav_mesh_loader.dart';
+export './navigation/navmesh/nav_mesh_loader.dart';
 export './partitioning/cell.dart';
 export './partitioning/cell_space_partitioning.dart';
 export './perception/memory/memory_record.dart';

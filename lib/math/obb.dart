@@ -8,32 +8,7 @@ import 'plane.dart';
 import 'vector3.dart';
 import 'dart:math' as math;
 
-final Map<String,Matrix3> eigenDecomposition = {
-  'unitary': Matrix3(),
-  'diagonal': Matrix3()
-};
-
-final Map<String,dynamic> a = {
-  'c': null, // center
-  'u': [ Vector3(), Vector3(), Vector3() ], // basis vectors
-  'e': [] // half width
-};
-
-final Map<String,dynamic> b = {
-  'c': null, // center
-  'u': [ Vector3(), Vector3(), Vector3() ], // basis vectors
-  'e': [] // half width
-};
-
-final List<List<double>> R = [[], [], []];
-final List<List<double>> absR = [[], [], []];
-final List<double> t = [];
-
 final _obb = OBB();
-final _xAxis = Vector3();
-final _yAxis = Vector3();
-final _zAxis = Vector3();
-final _v1 = Vector3();
 
 /// Class representing an oriented bounding box (OBB). Similar to an AABB, it's a
 /// rectangular block but with an arbitrary orientation. When using {@link OBB#fromPoints},
@@ -44,6 +19,33 @@ final _v1 = Vector3();
 ///
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class OBB {
+  final _closestPoint = Vector3();
+  final _xAxis = Vector3();
+  final _yAxis = Vector3();
+  final _zAxis = Vector3();
+  final _v1 = Vector3();
+
+  final Map<String,Matrix3> eigenDecomposition = {
+    'unitary': Matrix3(),
+    'diagonal': Matrix3()
+  };
+
+  final Map<String,dynamic> a = {
+    'c': null, // center
+    'u': [ Vector3(), Vector3(), Vector3() ], // basis vectors
+    'e': [] // half width
+  };
+
+  final Map<String,dynamic> b = {
+    'c': null, // center
+    'u': [ Vector3(), Vector3(), Vector3() ], // basis vectors
+    'e': [] // half width
+  };
+
+  final List<List<double>> R = [[], [], []];
+  final List<List<double>> absR = [[], [], []];
+  final List<double> t = [];
+
   late final Vector3 center;
   late final Vector3 halfSizes;
   late final Matrix3 rotation;
@@ -129,9 +131,9 @@ class OBB {
 	/// Returns true if the given bounding sphere intersects this OBB.
 	bool intersectsBoundingSphere(BoundingSphere sphere ) {
 		// find the point on the OBB closest to the sphere center
-		clampPoint( sphere.center, closestPoint );
+		clampPoint( sphere.center, _closestPoint );
 		// if that point is inside the sphere, the OBB and sphere intersect
-		return closestPoint.squaredDistanceTo( sphere.center ) <= ( sphere.radius * sphere.radius );
+		return _closestPoint.squaredDistanceTo( sphere.center ) <= ( sphere.radius * sphere.radius );
 	}
 
 	/// Returns true if the given OBB intersects this OBB.

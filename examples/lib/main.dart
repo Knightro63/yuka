@@ -9,6 +9,8 @@ import 'package:examples/math/orientation.dart';
 import 'package:examples/memory_system/line_of_sight.dart';
 import 'package:examples/memory_system/memory_system.dart';
 import 'package:examples/misc/trigger.dart';
+import 'package:examples/navigation/firsperson.dart';
+import 'package:examples/navigation/nav_basic.dart';
 import 'package:examples/playground/hideseek/hideseek.dart';
 import 'package:examples/playground/shooter/shooter.dart';
 import 'package:examples/steering/arriving.dart';
@@ -189,6 +191,12 @@ class MyAppState extends State<MyApp> {
               },
               '/graph_basic':(BuildContext context) {
                 return const GraphBasic();
+              },
+              '/nav_basic':(BuildContext context) {
+                return const NavBaisc();
+              },
+              '/first_person':(BuildContext context) {
+                return const FirstPersonNav();
               },
               '/trigger':(BuildContext context) {
                 return const Trigger();

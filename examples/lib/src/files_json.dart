@@ -20,6 +20,14 @@ const Map<String,Map<String,Map<String,String>>> filesJson = {
       'name': 'Graphs',
       'description': 'Demonstrates basic graph search algorithms.' 
     },
+    'nav_basic':{
+      'name': 'Navigation Mesh (Basic)',
+      'description': 'A simple showcase of a navigation mesh.'
+    },
+    'first_person':{
+      'name': 'First-Person Controls',
+      'description': 'First-Person example with navigation mesh usage to restrict movement.'
+    }
   },
   'Math':{
     'bounding_volumes':{

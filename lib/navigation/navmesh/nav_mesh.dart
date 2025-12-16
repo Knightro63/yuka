@@ -53,17 +53,17 @@ class NavMesh {
 		clear();
 
 		//
-		final initialEdgeList = [];
-		final sortedEdgeList = [];
+		final initialEdgeList = <HalfEdge>[];
+		final sortedEdgeList = <Map<String,dynamic>>[];
 
 		// setup list with all edges
 		for ( int i = 0, l = polygons.length; i < l; i ++ ) {
 			final polygon = polygons[ i ];
-			HalfEdge? edge = polygon.edge;
+			HalfEdge edge = polygon.edge!;
 
 			while ( edge != polygon.edge ) {
 				initialEdgeList.add( edge );
-				edge = edge?.next;
+				edge = edge.next!;
 			}
 
 			//
@@ -72,7 +72,6 @@ class NavMesh {
 
 		// setup twin references and sorted list of edges
 		for ( int i = 0, il = initialEdgeList.length; i < il; i ++ ) {
-
 			HalfEdge edge0 = initialEdgeList[ i ];
 
 			if ( edge0.twin != null ) continue;
@@ -111,7 +110,7 @@ class NavMesh {
 	/// Clears the internal state of this navigation mesh.
 	NavMesh clear() {
 		graph.clear();
-		regions.length = 0;
+		regions.clear();
 		spatialIndex = null;
 
 		return this;
@@ -147,7 +146,7 @@ class NavMesh {
 	/// Returns the region that contains the given point. The computational overhead
 	/// of this method for complex navigation meshes can be reduced by using a spatial index.
 	/// If no convex region contains the point, *null* is returned.
-	Polygon? getRegionForPoint(Vector3 point, [double epsilon = 1e-3] ) {
+	Polygon? getRegionForPoint(Vector3 point, [double epsilon = 0.01] ) {
 		List<Polygon> regions;
 
 		if ( spatialIndex != null ) {
@@ -159,7 +158,6 @@ class NavMesh {
 		}
 
 		//
-
 		for ( int i = 0, l = regions.length; i < l; i ++ ) {
 			final region = regions[ i ];
 			if ( region.contains( point, epsilon ) == true ) {
@@ -317,7 +315,7 @@ class NavMesh {
 		return this;
 	}
 
-	_buildRegions( edgeList ) {
+	void _buildRegions(List<Map<String,dynamic>> edgeList ) {
 		final regions = this.regions;
 
 		final Map<String,HalfEdge?> cache = {
@@ -334,7 +332,7 @@ class NavMesh {
 			for ( int i = 0, l = edgeList.length; i < l; i ++ ) {
 				final entry = edgeList[ i ];
 
-				HalfEdge? candidate = entry.edge;
+				HalfEdge? candidate = entry['edge'];
 
 				// cache current references for possible restore
 				cache['prev'] = candidate?.prev;
@@ -363,7 +361,7 @@ class NavMesh {
 
 					// delete obsolete polygon
 
-					final index = regions.indexOf( entry.edge.twin.polygon );
+					final index = regions.indexOf( entry['edge'].twin.polygon );
 					regions.removeAt( index );
 				} 
 				else {
@@ -396,7 +394,7 @@ class NavMesh {
 		}
 	}
 
-	_buildGraph() {
+	NavMesh _buildGraph() {
 		final graph = this.graph;
 		final regions = this.regions;
 

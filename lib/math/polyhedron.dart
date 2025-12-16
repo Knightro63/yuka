@@ -39,7 +39,7 @@ class Polyhedron {
 		final faces = this.faces;
 		final vertices = this.vertices;
 
-		vertices.length = 0;
+		vertices.clear();
 
 		final uniqueVertices = <Vector3>[];
 
@@ -67,10 +67,9 @@ class Polyhedron {
 		final faces = this.faces;
 		final edges = this.edges;
 
-		edges.length = 0;
+		edges.clear();
 
 		// iterate over all faces
-
 		for ( int i = 0, l = faces.length; i < l; i ++ ) {
 			final face = faces[ i ];
 			HalfEdge? edge = face.edge;
@@ -91,8 +90,8 @@ class Polyhedron {
 
 	/// Configures this polyhedron so it does represent the given AABB.
 	Polyhedron fromAABB(AABB aabb ) {
-		faces.length = 0;
-		this.vertices.length = 0;
+		faces.clear();
+		this.vertices.clear();
 
 		final min = aabb.min;
 		final max = aabb.max;

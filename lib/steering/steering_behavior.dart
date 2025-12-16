@@ -1,3 +1,4 @@
+import './path.dart';
 import '../core/game_entity.dart';
 import '../math/vector3.dart';
 import 'vehicle.dart';
@@ -10,6 +11,7 @@ class SteeringBehavior {
   double weight = 1;
   bool active = true;
   Vector3 target = Vector3();
+  Path path = Path();
 
 	/// Calculates the steering force for a single simulation step.
 	Vector3? calculate(Vehicle vehicle, Vector3 force, [double? delta ]){

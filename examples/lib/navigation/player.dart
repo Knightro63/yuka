@@ -1,5 +1,3 @@
-
-
 import 'package:yuka/yuka.dart';
 
 final startPosition = Vector3();
@@ -9,8 +7,8 @@ class Player extends MovingEntity {
   double height = 2.0;
   final head = GameEntity();
   bool updateOrientation = false;
-  dynamic navMesh;
-  dynamic currentRegion;
+  NavMesh? navMesh;
+  Polygon? currentRegion;
 
 	Player():super() {
 		maxSpeed = 4;
@@ -25,7 +23,7 @@ class Player extends MovingEntity {
 		endPosition.copy( position );
 
 		// ensure the entity stays inside its navmesh
-		currentRegion = navMesh.clampMovement(
+		currentRegion = navMesh?.clampMovement(
 			currentRegion,
 			startPosition,
 			endPosition,
@@ -33,7 +31,7 @@ class Player extends MovingEntity {
 		);
 
 		// adjust height of player according to the ground
-		final distance = currentRegion.distanceToPoint( position );
+		final distance = currentRegion?.distanceToPoint( position ) ?? 0;
 		position.y -= distance * 0.2; // smooth transition
 
     return this;

@@ -27,7 +27,7 @@ class BVHelper {
     return mesh;
   }
 
-   static three.Mesh createOBBHelper(yuka.OBB obb ) {
+  static three.Mesh createOBBHelper(yuka.OBB obb ) {
     final center = obb.center;
     final size = yuka.Vector3().copy( obb.halfSizes ).multiplyScalar( 2 );
     final rotation = yuka.Quaternion().fromMatrix3( obb.rotation );
@@ -50,6 +50,8 @@ class BVHelper {
     final centroids = <double>[];
 
     final color = three.Color();
+
+    print(faces.length);
 
     for ( int i = 0; i < faces.length; i ++ ) {
 
@@ -90,7 +92,7 @@ class BVHelper {
     convexGeometry.setAttributeFromString( 'position', three.Float32BufferAttribute.fromList( positions, 3 ) );
     convexGeometry.setAttributeFromString( 'color', three.Float32BufferAttribute.fromList( colors, 3 ) );
 
-    final convexMaterial = three.MeshBasicMaterial.fromMap( { 'color': 0xff0000, 'wireframe': true } );
+    final convexMaterial = three.MeshBasicMaterial.fromMap( { 'color': 0xff0000,  } );
     final mesh = three.Mesh( convexGeometry, convexMaterial );
 
     // centroids (useful for debugging)

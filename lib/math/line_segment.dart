@@ -26,8 +26,8 @@ class LineSegment {
 
 	/// Copies all values from the given line segment to this line segment.
 	LineSegment copy(LineSegment lineSegment ) {
-		from = lineSegment.from;
-		to = lineSegment.to;
+		from.copy(lineSegment.from);
+		to.copy(lineSegment.to);
 
 		return this;
 	}

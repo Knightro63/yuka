@@ -12,3 +12,6 @@ License: CC Attribution
 
 Shotgun from https://sketchfab.com/models/53b158b0d5a54b4491b09d1fb3058e29 by Harry_L
 License: CC Attribution
+
+Model from https://sketchfab.com/models/7842d43173c54ec18da10246cdc6da71 by hansolocambo
+License: CC Attribution

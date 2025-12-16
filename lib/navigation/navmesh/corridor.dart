@@ -102,7 +102,7 @@ class Corridor {
 			}
 		}
 
-		if ( ( path.isEmpty ) || ( path[ path.length - 1 ] != portalEdges[ portalEdges.length - 1 ]['left'] ) ) {
+		if ( path.isEmpty  || ( path[ path.length - 1 ] != portalEdges[ portalEdges.length - 1 ]['left'] ) ) {
 			// append last point to path
 			path.add( portalEdges[ portalEdges.length - 1 ]['left']! );
 		}

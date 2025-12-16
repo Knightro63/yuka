@@ -31,7 +31,6 @@ class ConvexHull extends Polyhedron {
   final _unassigned = VertexList();
   final List<Vertex> _vertices = [];
 
-	/// Constructs a convex hull.
 	ConvexHull():super();
 
 	/// Returns true if the given point is inside this convex hull.
@@ -77,8 +76,8 @@ class ConvexHull extends Polyhedron {
 		return sat.intersects( this, polyhedronAABB! );
 	}
 
-	/// Returns true if this convex hull intersects with the given one.
-	bool intersectsConvexHull(ConvexHull convexHull ) {
+  /// Returns true if this convex hull intersects with the given one.
+	bool intersectsConvexHull( ConvexHull convexHull ) {
 		return sat.intersects( this, convexHull );
 	}
 
@@ -91,7 +90,6 @@ class ConvexHull extends Polyhedron {
 		}
 
 		// wrap all points into the internal vertex data structure
-
 		for ( int i = 0, l = points.length; i < l; i ++ ) {
 			_vertices.add( Vertex( points[ i ] ) );
 		}
@@ -103,7 +101,7 @@ class ConvexHull extends Polyhedron {
 
 	// private API
 	// adds a single face to the convex hull by connecting it with the respective horizon edge
-	HalfEdge? _addAdjoiningFace(Vertex vertex, HalfEdge horizonEdge ) {
+	HalfEdge? _addAdjoiningFace( Vertex vertex, HalfEdge horizonEdge ) {
 		// all the half edges are created in ccw order thus the face is always pointing outside the hull
 		final face = Face( vertex.point, horizonEdge.prev?.vertex, horizonEdge.vertex );
 		faces.add( face );
@@ -113,7 +111,7 @@ class ConvexHull extends Polyhedron {
 	}
 
 	// adds faces by connecting the horizon with the point of the convex hull
-	List<Face> _addNewFaces(Vertex vertex, horizon ) {
+	List<Face> _addNewFaces( Vertex vertex, List<HalfEdge> horizon ) {
 		final newFaces = <Face>[];
 		HalfEdge? firstSideEdge;
 		HalfEdge? previousSideEdge;
@@ -130,7 +128,7 @@ class ConvexHull extends Polyhedron {
 				sideEdge?.next?.linkOpponent( previousSideEdge );
 			}
 
-			newFaces.add( sideEdge?.polygon as Face);
+			newFaces.add( sideEdge?.polygon as Face );
 			previousSideEdge = sideEdge;
 		}
 
@@ -157,7 +155,7 @@ class ConvexHull extends Polyhedron {
 	// the base iteration of the algorithm. adds a vertex to the convex hull by
 	// connecting faces from the horizon with it.
 	ConvexHull _addVertexToHull(Vertex vertex ) {
-		final horizon = <Face>[];
+		final horizon = <HalfEdge>[];
 		_unassigned.clear();
 		_computeHorizon( vertex.point, null, vertex.face, horizon );
 		final newFaces = _addNewFaces( vertex, horizon );
@@ -282,7 +280,7 @@ class ConvexHull extends Polyhedron {
 			faces[ 2 ].getEdge( 1 )?.linkOpponent( faces[ 3 ].getEdge( 0 ) );
 			faces[ 3 ].getEdge( 1 )?.linkOpponent( faces[ 1 ].getEdge( 0 ) );
 
-		} 
+		}
     else {
 			// the face is able to see the point so 'plane.normal' is pointing inside the tetrahedron
 			faces.addAll([
@@ -329,8 +327,7 @@ class ConvexHull extends Polyhedron {
 	}
 
 	// computes the extreme vertices of used to compute the initial convex hull
-
-	_computeExtremes() {
+	Map<String,dynamic> _computeExtremes() {
 		final min = Vector3( double.infinity, double.infinity, double.infinity );
 		final max = Vector3( - double.infinity, - double.infinity, - double.infinity );
 
@@ -338,7 +335,6 @@ class ConvexHull extends Polyhedron {
 		final Map<String,Vertex?> maxVertices = { 'x': null, 'y': null, 'z': null };
 
 		// compute the min/max points on all six directions
-
 		for ( int i = 0, l = _vertices.length; i < l; i ++ ) {
 
 			final vertex = _vertices[ i ];
@@ -390,7 +386,7 @@ class ConvexHull extends Polyhedron {
 
 	// computes the horizon, an array of edges enclosing the faces that are able
 	// to see the vertex
-	ConvexHull _computeHorizon(Vector3 eyePoint, HalfEdge? crossEdge, Face? face, horizon ) {
+	ConvexHull _computeHorizon(Vector3 eyePoint, HalfEdge? crossEdge, Face? face, List<HalfEdge>horizon ) {
 		if ( face?.outside != null) {
 			final startVertex = face!.outside;
 			// remove all vertices from the given face
@@ -413,11 +409,11 @@ class ConvexHull extends Polyhedron {
 		}
 
 		while ( edge != crossEdge ) {
-			HalfEdge? twinEdge = edge?.twin;
-			Polygon? oppositeFace = twinEdge?.polygon;
+			HalfEdge twinEdge = edge!.twin!;
+			Polygon oppositeFace = twinEdge.polygon!;
 
-			if ( oppositeFace?.active == true) {
-				if ( (oppositeFace?.distanceToPoint( eyePoint ) ?? 0) > _tolerance ) {
+			if ( oppositeFace.active == true) {
+				if (oppositeFace.distanceToPoint( eyePoint ) > _tolerance ) {
 					// the opposite face can see the vertex, so proceed with next edge
 				  _computeHorizon( eyePoint, twinEdge, oppositeFace as Face, horizon );
 				} 
@@ -426,22 +422,21 @@ class ConvexHull extends Polyhedron {
 					horizon.add( edge );
 				}
 			}
-			edge = edge?.next;
+			edge = edge.next;
 		}
 
 		return this;
 	}
 
 	// this method controls the basic flow of the algorithm
-
 	ConvexHull _generate() {
 		faces.clear();
 		_computeInitialHull();
-    
-		Vertex? vertex;
+		Vertex? vertex = _nextVertexToAdd();
 
-		while ( (vertex = _nextVertexToAdd()) != null ) {
-			_addVertexToHull( vertex! );
+		while ( vertex != null ) {
+			_addVertexToHull( vertex );
+      vertex = _nextVertexToAdd();
 		}
 
 		_updateFaces();
@@ -473,7 +468,6 @@ class ConvexHull extends Polyhedron {
 			edges.sort( ( a, b ){ return (b!.length() - a!.length()).toInt();});
 
 			// process edges from longest to shortest
-
 			for ( int i = 0, l = edges.length; i < l; i ++ ) {
 				final entry = edges[ i ]!;
 				if ( _mergePossible( entry ) == false ) continue;
@@ -691,6 +685,7 @@ class Face extends Polygon {
 
 		fromContour( [ this.a, this.b, this.c ] );
 	  computeCentroid();
+    active = true;
 	}
 
   @override

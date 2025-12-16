@@ -1,3 +1,5 @@
+import 'package:yuka/graph/core/node.dart';
+import 'package:yuka/navigation/navmesh/nav_mesh.dart';
 import '../../math/vector3.dart';
 
 /// A lookup table representing the cost associated from traveling from one
@@ -8,9 +10,9 @@ class CostTable {
   final Map<int,Map> _nodeMap = {};
 
 	/// Inits the cost table for the given navigation mesh.
-	CostTable init( navMesh ) {
+	CostTable init(NavMesh navMesh ) {
 		final graph = navMesh.graph;
-		final nodes = [];
+		final nodes = <Node>[];
 
 		clear();
 
