@@ -1,0 +1,57 @@
+<html lang="en">
+	<head>
+		<title>DIVE</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="./style/main.css">
+		<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
+	</head>
+<body>
+
+	<section id="startScreen">
+		<h1>
+			<p>
+				This showcase demonstrates a full-featured implementation of a bot AI for a simple shooter game.
+			</p>
+			<p>
+				Mouse and keyboard are required. It's also recommended to turn on audio speakers.
+			</p>
+		</h1>
+		<p>
+			<button id="start">Start</button>
+		</p>
+	</section>
+
+	<section id="loadingScreen">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</section>
+
+	<section id="hudAmmo" class="uiContainer hidden">
+		<div>
+			<span id="roundsLeft"></span>
+			<span>|</span>
+			<span id="ammo"></span>
+		</div>
+	</section>
+
+	<section id="hudHealth" class="uiContainer hidden">
+		<div>
+			<span id="health"></span>
+		</div>
+	</section>
+
+	<section id="hudFragList" class="uiContainer hidden">
+		<div>
+			<ul id="fragList"></ul>
+		</div>
+	</section>
+
+	<script src="../build/bundle.js"></script>
+</body>
+</html>

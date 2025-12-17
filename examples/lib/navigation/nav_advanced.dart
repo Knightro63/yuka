@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:examples/common/nav_mesh_helper.dart';
 import 'package:examples/navigation/custom_vehicle.dart';
-import 'package:examples/navigation/path_planner.dart';
+import 'package:examples/common/path_planner.dart';
 import 'package:flutter/material.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'package:yuka/yuka.dart' as yuka;

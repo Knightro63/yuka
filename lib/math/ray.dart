@@ -55,7 +55,7 @@ class Ray {
 
 	/// Computes a position on the ray according to the given t value
 	/// and stores the result in the given 3D vector. The t value has a range of
-	/// [0, Infinity] where 0 means the position is equal with the origin of the ray.
+	/// [0, double.infinity] where 0 means the position is equal with the origin of the ray.
 	Vector3 at(double t, Vector3 result ) {
 		// t has to be zero or positive
 		return result.copy( direction ).multiplyScalar( t ).add( origin );
@@ -144,7 +144,7 @@ class Ray {
 		if ( ( tmin > tymax ) || ( tymin > tmax ) ) return null;
 
 		// these lines also handle the case where tmin or tmax is NaN
-		// (result of 0 * Infinity). x !== x returns true if x is NaN
+		// (result of 0 * double.infinity). x !== x returns true if x is NaN
 
 		if ( tymin > tmin || tmin != tmin ) tmin = tymin;
 

@@ -57,6 +57,13 @@ class GraphHelper{
 
   }
 
+	static three.Line createPathHelperBasic() {
+		final pathHelper = three.Line( three.BufferGeometry(), three.LineBasicMaterial.fromMap( { 'color': 0xff0000 } ) );
+		pathHelper.matrixAutoUpdate = false;
+		pathHelper.visible = false;
+		return pathHelper;
+	}
+
   static three.Group createPathHelper(yuka.Graph graph, List<int> path, double nodeSize, [int color = 0x00ff00 ]) {
     final group = three.Group();
 

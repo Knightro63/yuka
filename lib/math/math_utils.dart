@@ -62,6 +62,10 @@ class MathUtils {
 		return math.max( min, math.min( max, value ) );
 	}
 
+	static int clampInt(int value, int min, int max ) {
+		return math.max( min, math.min( max, value ) );
+	}
+
 	// /// Computes a RFC4122 Version 4 complied Universally Unique Identifier (UUID).
 	// static String generateUUID() {
 	// 	// https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/21963136#21963136

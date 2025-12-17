@@ -1,5 +1,5 @@
 
-import 'package:examples/navigation/path_planner_task.dart';
+import 'package:examples/common/path_planner_task.dart';
 import 'package:yuka/yuka.dart';
 
 class PathPlanner {

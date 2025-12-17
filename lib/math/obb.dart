@@ -297,7 +297,6 @@ class OBB {
 	/// is not satisfying.
 	OBB fromPoints(List<Vector3> points ) {
 		final convexHull = ConvexHull().fromPoints( points );
-    print(convexHull.faces.length);
 
 		// 1. iterate over all faces of the convex hull and triangulate
 		final faces = convexHull.faces;
