@@ -61,10 +61,10 @@ class NavMesh {
 			final polygon = polygons[ i ];
 			HalfEdge edge = polygon.edge!;
 
-			while ( edge != polygon.edge ) {
+			do{
 				initialEdgeList.add( edge );
 				edge = edge.next!;
-			}
+			} while ( edge != polygon.edge );
 
 			//
 			regions.add( polygon );
@@ -84,7 +84,7 @@ class NavMesh {
 					edge0.linkOpponent( edge1 );
 
 					// add edge to list
-					final cost = edge0.squaredLength;
+					final cost = edge0.squaredLength();
 					sortedEdgeList.add( {
 						'cost': cost,
 						'edge': edge0
@@ -146,12 +146,12 @@ class NavMesh {
 	/// Returns the region that contains the given point. The computational overhead
 	/// of this method for complex navigation meshes can be reduced by using a spatial index.
 	/// If no convex region contains the point, *null* is returned.
-	Polygon? getRegionForPoint(Vector3 point, [double epsilon = 0.01] ) {
-		List<Polygon> regions;
+	Polygon? getRegionForPoint(Vector3 point, [double epsilon = 1e-3] ) {
+		List<dynamic> regions;
 
 		if ( spatialIndex != null ) {
 			final index = spatialIndex!.getIndexForPosition( point );
-			regions = spatialIndex!.cells[ index ].entries as List<Polygon>;
+			regions = spatialIndex!.cells[ index ].entries;
 		} 
 		else {
 			regions = this.regions;
@@ -354,10 +354,10 @@ class NavMesh {
 					// correct polygon reference of all edges
 					HalfEdge? edge = polygon?.edge;
 
-					while ( edge != polygon?.edge ) {
+					do{
 						edge?.polygon = polygon;
 						edge = edge?.next;
-					}
+					} while ( edge != polygon?.edge );
 
 					// delete obsolete polygon
 
@@ -387,10 +387,10 @@ class NavMesh {
 
 			// gather all border edges used by clampMovement()
 			HalfEdge? edge = region.edge;
-			while ( edge != region.edge ) {
+			do{
 				if ( edge?.twin == null ) _borderEdges.add( edge! );
 				edge = edge?.next;
-			}
+			} while ( edge != region.edge );
 		}
 	}
 
@@ -409,8 +409,7 @@ class NavMesh {
 			HalfEdge? edge = region.edge;
 
 			// iterate through all egdes of the region (in other words: along its contour)
-			while ( edge != region.edge ) {
-
+			do{
 				// check for a portal edge
 				if ( edge?.twin != null ) {
 					final nodeIndex = getNodeIndex( edge!.twin!.polygon! );
@@ -424,7 +423,7 @@ class NavMesh {
 				}
 
 				edge = edge?.next;
-			}
+			} while ( edge != region.edge );
 		}
 
 		// add navigation edges
@@ -465,10 +464,10 @@ class NavMesh {
 
 				HalfEdge? edge = region.edge;
 
-				while ( edge != region.edge ) {
+				do{
 					if ( edge?.twin == null ) edges.add( edge! );
 					edge = edge?.next;
-				}
+				} while ( edge != region.edge );
 			}
 
 			// use only border edges from adjacent convex regions (fast)
@@ -491,8 +490,8 @@ class NavMesh {
 
 			if ( distance < minDistance ) {
 				minDistance = distance;
-				closestBorderEdge.edge = edge;
-				closestBorderEdge.closestPoint.copy( pointOnLineSegment );
+				closestBorderEdge['edge'] = edge;
+				closestBorderEdge['closestPoint'].copy( pointOnLineSegment );
 			}
 		}
 
@@ -503,7 +502,7 @@ class NavMesh {
 	Map<String, dynamic> _getPortalEdge(Polygon region1, Polygon region2, Map<String,dynamic> portalEdge ) {
 		HalfEdge? edge = region1.edge;
 
-		while ( edge != region1.edge ) {
+		do{
 			if ( edge?.twin != null ) {
 				if ( edge!.twin?.polygon == region2 ) {
 					// the direction of portal edges are reversed. so "left" is the edge's origin vertex and "right"
@@ -514,7 +513,7 @@ class NavMesh {
 				}
 			}
 			edge = edge?.next;
-		}
+		} while ( edge != region1.edge );
 
 		portalEdge['left'] = null;
 		portalEdge['right'] = null;

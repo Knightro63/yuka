@@ -11,12 +11,12 @@ import 'sat.dart';
 import 'vector3.dart';
 import 'dart:math' as math;
 
-final line = LineSegment();
-final plane = Plane();
-final closestPoint = Vector3();
-final up = Vector3( 0, 1, 0 );
-final sat = SAT();
-Polyhedron? polyhedronAABB;
+final _line = LineSegment();
+final _plane = Plane();
+final _closestPoint = Vector3();
+final _up = Vector3( 0, 1, 0 );
+final _sat = SAT();
+Polyhedron? _polyhedronAABB;
 
 /// Class representing a convex hull. This is an implementation of the Quickhull algorithm
 /// based on the presentation {@link http://media.steampowered.com/apps/valve/2014/DirkGregorius_ImplementingQuickHull.pdf Implementing QuickHull}
@@ -50,16 +50,16 @@ class ConvexHull extends Polyhedron {
 
 	/// Returns true if this convex hull intersects with the given AABB.
 	bool intersectsAABB(AABB aabb ) {
-		if ( polyhedronAABB == null ) {
+		if ( _polyhedronAABB == null ) {
 			// lazily create the (proxy) polyhedron if necessary
-			polyhedronAABB = Polyhedron().fromAABB( aabb );
+			_polyhedronAABB = Polyhedron().fromAABB( aabb );
 		} 
     else {
 			// otherwise just ensure up-to-date vertex data.
 			// the topology of the polyhedron is equal for all AABBs
 			final min = aabb.min;
 			final max = aabb.max;
-			final vertices = polyhedronAABB!.vertices;
+			final vertices = _polyhedronAABB!.vertices;
 
 			vertices[ 0 ].set( max.x, max.y, max.z );
 			vertices[ 1 ].set( max.x, max.y, min.z );
@@ -70,15 +70,15 @@ class ConvexHull extends Polyhedron {
 			vertices[ 6 ].set( min.x, min.y, max.z );
 			vertices[ 7 ].set( min.x, min.y, min.z );
 
-			aabb.getCenter( polyhedronAABB!.centroid );
+			aabb.getCenter( _polyhedronAABB!.centroid );
 		}
 
-		return sat.intersects( this, polyhedronAABB! );
+		return _sat.intersects( this, _polyhedronAABB! );
 	}
 
   /// Returns true if this convex hull intersects with the given one.
 	bool intersectsConvexHull( ConvexHull convexHull ) {
-		return sat.intersects( this, convexHull );
+		return _sat.intersects( this, convexHull );
 	}
 
 	/// Computes a convex hull that encloses the given set of points. The computation requires
@@ -215,14 +215,14 @@ class ConvexHull extends Polyhedron {
 
 		// 2. The next vertex 'v2' is the one farthest to the line formed by 'v0' and 'v1'
 		maxDistance = - double.infinity;
-		line.set( v0.point, v1.point );
+		_line.set( v0.point, v1.point );
 
 		for ( int i = 0, l = vertices.length; i < l; i ++ ) {
 			final vertex = vertices[ i ];
 
 			if ( vertex != v0 && vertex != v1 ) {
-				line.closestPointToPoint( vertex.point, true, closestPoint );
-				distance = closestPoint.squaredDistanceTo( vertex.point );
+				_line.closestPointToPoint( vertex.point, true, _closestPoint );
+				distance = _closestPoint.squaredDistanceTo( vertex.point );
 
 				if ( distance > maxDistance ) {
 					maxDistance = distance;
@@ -234,13 +234,13 @@ class ConvexHull extends Polyhedron {
 		// 3. The next vertex 'v3' is the one farthest to the plane 'v0', 'v1', 'v2'
 
 		maxDistance = - double.infinity;
-		plane.fromCoplanarPoints( v0.point, v1.point, v2.point );
+		_plane.fromCoplanarPoints( v0.point, v1.point, v2.point );
 
 		for ( int i = 0, l = vertices.length; i < l; i ++ ) {
 			final vertex = vertices[ i ];
 
 			if ( vertex != v0 && vertex != v1 && vertex != v2 ) {
-				distance = plane.distanceToPoint( vertex.point ).abs();
+				distance = _plane.distanceToPoint( vertex.point ).abs();
 				if ( distance > maxDistance ) {
 					maxDistance = distance;
 					v3 = vertex;
@@ -249,7 +249,7 @@ class ConvexHull extends Polyhedron {
 		}
 
 		// handle case where all points lie in one plane
-		if ( plane.distanceToPoint( v3.point ) == 0 ) {
+		if ( _plane.distanceToPoint( v3.point ) == 0 ) {
 			throw 'ERROR: YUKA.ConvexHull: All extreme points lie in a single plane. Unable to compute convex hull.';
 		}
 
@@ -257,7 +257,7 @@ class ConvexHull extends Polyhedron {
 
 		final faces = this.faces;
 
-		if ( plane.distanceToPoint( v3.point ) < 0 ) {
+		if ( _plane.distanceToPoint( v3.point ) < 0 ) {
 
 			// the face is not able to see the point so 'plane.normal' is pointing outside the tetrahedron
 
@@ -408,7 +408,7 @@ class ConvexHull extends Polyhedron {
 			edge = crossEdge.next;
 		}
 
-		while ( edge != crossEdge ) {
+		do{
 			HalfEdge twinEdge = edge!.twin!;
 			Polygon oppositeFace = twinEdge.polygon!;
 
@@ -423,7 +423,7 @@ class ConvexHull extends Polyhedron {
 				}
 			}
 			edge = edge.next;
-		}
+		} while ( edge != crossEdge );
 
 		return this;
 	}
@@ -488,16 +488,16 @@ class ConvexHull extends Polyhedron {
 				final polygon = candidate.polygon;
 				polygon?.edge = candidate.prev;
 
-				final ccw = (polygon?.plane.normal.dot( up ) ?? 0) >= 0;
+				final ccw = (polygon?.plane.normal.dot( _up ) ?? 0) >= 0;
 
 				if ( polygon?.convex( ccw ) == true && polygon?.coplanar( _tolerance ) == true ) {
 					// correct polygon reference of all edges
 					HalfEdge? edge = polygon?.edge;
 
-					while ( edge != polygon?.edge ) {
+					do{
 						edge?.polygon = polygon;
 						edge = edge?.next;
-					}
+					} while ( edge != polygon?.edge );
 
 					// delete obsolete polygon
 					final index = faces.indexOf( entry.twin!.polygon! );
@@ -532,12 +532,12 @@ class ConvexHull extends Polyhedron {
 		final polygon = edge.polygon;
 		HalfEdge? currentEdge = edge.twin;
 
-		while ( edge.twin != currentEdge ) {
+		do{
 			// we can only use an edge to merge two regions if the adjacent region does not have any edges
 			// apart from edge.twin already connected to the region.
 			if ( currentEdge != edge.twin && currentEdge?.twin?.polygon == polygon ) return false;
 			currentEdge = currentEdge?.next;
-		} 
+		} while ( edge.twin != currentEdge );
 
 		return true;
 	}
@@ -555,16 +555,16 @@ class ConvexHull extends Polyhedron {
 			final face = vertex?.face;
 
 			// now calculate the farthest vertex that face can see
-			while ( vertex != null && vertex.face == face ) {
-				final distance = face?.distanceToPoint( vertex.point ) ?? 0;
+			do{
+				final distance = face?.distanceToPoint( vertex!.point ) ?? 0;
 
 				if ( distance > maxDistance ) {
 					maxDistance = distance;
 					nextVertex = vertex;
 				}
 
-				vertex = vertex.next;
-			}
+				vertex = vertex?.next;
+			} while ( vertex != null && vertex.face == face );
 		}
 
 		return nextVertex;
@@ -640,9 +640,9 @@ class ConvexHull extends Polyhedron {
 		if ( _unassigned.empty() == false ) {
 			Vertex? vertex = _unassigned.first;
 
-			while ( vertex != null ) {
+			do{
 				// buffer 'next' reference since addVertexToFace() can change it
-				Vertex? nextVertex = vertex.next;
+				Vertex? nextVertex = vertex?.next;
 				double maxDistance = _tolerance;
 				Face? maxFace;
 
@@ -650,7 +650,7 @@ class ConvexHull extends Polyhedron {
 					final face = newFaces[ i ];
 
 					if ( face.active ) {
-						final distance = face.distanceToPoint( vertex.point );
+						final distance = face.distanceToPoint( vertex!.point );
 
 						if ( distance > maxDistance ) {
 							maxDistance = distance;
@@ -664,7 +664,7 @@ class ConvexHull extends Polyhedron {
 				}
 
 				vertex = nextVertex;
-			}
+			} while ( vertex != null );
 		}
 
 		return this;
@@ -732,9 +732,9 @@ class VertexList {
 		return this;
 	}
 
-	VertexList insertAfter( target, Vertex vertex ) {
+	VertexList insertAfter(Vertex? target, Vertex vertex ) {
 		vertex.prev = target;
-		vertex.next = target.next;
+		vertex.next = target?.next;
 
 		if (vertex.next == null) {
 			tail = vertex;
@@ -743,7 +743,7 @@ class VertexList {
 			vertex.next?.prev = vertex;
 		}
 
-		target.next = vertex;
+		target?.next = vertex;
 		return this;
 	}
 
@@ -762,7 +762,7 @@ class VertexList {
 		return this;
 	}
 
-	VertexList appendChain(Vertex ?vertex ) {
+	VertexList appendChain(Vertex? vertex ) {
 		if ( head == null ) {
 			head = vertex;
 		} 

@@ -75,7 +75,7 @@ class Plane {
 		if ( denom == 0 ) return null;
 
 		// compute point on intersection line
-		v1.copy( plane.normal ).multiplyScalar( this.constant );
+		v1.copy( plane.normal ).multiplyScalar( constant );
 		v2.copy( normal ).multiplyScalar( plane.constant );
 
 		result.crossVectors( v1.sub( v2 ), d ).divideScalar( denom );

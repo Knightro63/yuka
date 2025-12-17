@@ -21,10 +21,10 @@ class NavMeshHelper {
       HalfEdge? edge = region.edge;
       final edges = <HalfEdge>[];
 
-      while ( edge != region.edge ) {
+      do{
         edges.add( edge! );
         edge = edge.next;
-      }
+      } while ( edge != region.edge );
 
       // triangulate
       final triangleCount = ( edges.length - 2 );
@@ -48,5 +48,43 @@ class NavMeshHelper {
     geometry.setAttributeFromString( 'color', three.Float32BufferAttribute.fromList( colors, 3 ) );
 
     return mesh;
+  }
+
+  static three.LineSegments createCellSpaceHelper( spatialIndex ) {
+    final cells = spatialIndex.cells;
+    final geometry = three.BufferGeometry();
+    final material = three.LineBasicMaterial();
+    final lines = three.LineSegments( geometry, material );
+    final positions = <double>[];
+
+    for ( int i = 0, l = cells.length; i < l; i ++ ) {
+      final cell = cells[ i ];
+      final min = cell.aabb.min;
+      final max = cell.aabb.max;
+
+      // generate data for twelve lines segments
+
+      // bottom lines
+      positions.addAll( [min.x, min.y, min.z, 	max.x, min.y, min.z] );
+      positions.addAll( [min.x, min.y, min.z, 	min.x, min.y, max.z] );
+      positions.addAll( [max.x, min.y, max.z, 	max.x, min.y, min.z] );
+      positions.addAll( [max.x, min.y, max.z, 	min.x, min.y, max.z] );
+
+      // top lines
+      positions.addAll( [min.x, max.y, min.z, 	max.x, max.y, min.z] );
+      positions.addAll( [min.x, max.y, min.z, 	min.x, max.y, max.z] );
+      positions.addAll( [max.x, max.y, max.z, 	max.x, max.y, min.z] );
+      positions.addAll( [max.x, max.y, max.z, 	min.x, max.y, max.z] );
+
+      // torso lines
+      positions.addAll( [min.x, min.y, min.z, 	min.x, max.y, min.z] );
+      positions.addAll( [max.x, min.y, min.z, 	max.x, max.y, min.z] );
+      positions.addAll( [max.x, min.y, max.z, 	max.x, max.y, max.z] );
+      positions.addAll( [min.x, min.y, max.z, 	min.x, max.y, max.z] );
+    }
+
+    geometry.setAttributeFromString( 'position', three.Float32BufferAttribute.fromList( positions, 3 ) );
+
+    return lines;
   }
 }

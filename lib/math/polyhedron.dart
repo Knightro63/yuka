@@ -49,11 +49,11 @@ class Polyhedron {
 			HalfEdge? edge = face.edge;
 
 			// process all edges of a faces
-			while ( edge != face.edge ) {
+			do{
 				// add vertex to set (assuming half edges share unique vertices)
 				uniqueVertices.add( edge!.vertex );
 				edge = edge.next;
-			}
+			} while ( edge != face.edge );
 		}
 
 		vertices.addAll( uniqueVertices );
@@ -75,14 +75,14 @@ class Polyhedron {
 			HalfEdge? edge = face.edge;
 
 			// process all edges of a faces
-			while ( edge != face.edge ) {
+			do{
 				// only add the edge if the twin was not added before
 				if ( edges.contains( edge!.twin ) == false ) {
 					edges.add( edge );
 				}
 
 				edge = edge.next;
-			}
+			} while ( edge != face.edge );
 		}
 
 		return this;

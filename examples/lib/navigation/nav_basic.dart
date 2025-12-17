@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:examples/common/graph_helper.dart';
 import 'package:examples/common/nav_mesh_helper.dart';
-import 'package:examples/common/yuka_first_person_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'package:yuka/yuka.dart' as yuka;
@@ -58,7 +57,6 @@ class _State extends State<NavBaisc> {
 
 	final yuka.EntityManager entityManager = yuka.EntityManager();
   final yuka.Time time = yuka.Time();
-  late final YukaFirstPersonControls controls;
   final three.Vector2 mouseCoordinates = three.Vector2();
   final raycaster = three.Raycaster();
   final vehicle = yuka.Vehicle();
@@ -161,7 +159,6 @@ class _State extends State<NavBaisc> {
     pathHelper.geometry = three.BufferGeometry().setFromPoints( path );
 
     final followPathBehavior = vehicle.steering.behaviors[ 0 ];
-    print(followPathBehavior.runtimeType);
     followPathBehavior.active = true;
     followPathBehavior.path.clear();
 

@@ -5,8 +5,8 @@ import 'quaternion.dart';
 import 'vector3.dart';
 import 'dart:math' as math;
 
-final m1 = Matrix3();
-final m2 = Matrix3();
+final _m1 = Matrix3();
+final _m2 = Matrix3();
 
 /// Class representing a 3x3 matrix. The elements of the matrix
 /// are stored in column-major order.
@@ -156,11 +156,11 @@ class Matrix3 {
 		perpWorldUp.crossVectors( targetDirection, worldRight ).normalize();
 
 		// orthonormal linear basis B { worldRight, perpWorldUp, targetDirection } for the desired target orientation
-		m1.makeBasis( worldRight, perpWorldUp, targetDirection );
-		m2.makeBasis( localRight, localUp, localForward );
+		_m1.makeBasis( worldRight, perpWorldUp, targetDirection );
+		_m2.makeBasis( localRight, localUp, localForward );
 
 		// finalruct a matrix that maps basis A to B
-		multiplyMatrices( m1, m2.transpose() );
+		multiplyMatrices( _m1, _m2.transpose() );
 
 		return this;
 	}
@@ -228,11 +228,11 @@ class Matrix3 {
 		final epsilon = MathUtils.epsilon * diagonalMatrix.frobeniusNorm();
 
 		while ( sweep < maxSweeps && diagonalMatrix.offDiagonalFrobeniusNorm() > epsilon ) {
-			diagonalMatrix.shurDecomposition( m1 );
-			m2.copy( m1 ).transpose();
-			diagonalMatrix.multiply( m1 );
-			diagonalMatrix.premultiply( m2 );
-			unitaryMatrix.multiply( m1 );
+			diagonalMatrix.shurDecomposition( _m1 );
+			_m2.copy( _m1 ).transpose();
+			diagonalMatrix.multiply( _m1 );
+			diagonalMatrix.premultiply( _m2 );
+			unitaryMatrix.multiply( _m1 );
 
 			if ( ++ count > 2 ) {
 				sweep ++;

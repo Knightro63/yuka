@@ -59,7 +59,7 @@ class _State extends State<BVHExample> {
 
 	final Map<String,dynamic> params = {
     'branchingFactor': 2.0,
-    'primitivesPerNode': 1.0,
+    'primitives/Node': 1.0,
     'depth': 5.0,
     'meshVisible': true
 	};
@@ -127,7 +127,7 @@ class _State extends State<BVHExample> {
     final gui = panel.addFolder('GUI')..open();
 
     gui.addSlider( params, 'branchingFactor', 2, 6 )..step( 1 )..onChange( createBVH );
-    gui.addSlider( params, 'primitivesPerNode', 1, 10 )..step( 1 )..onChange( createBVH );
+    gui.addSlider( params, 'primitives/Node', 1, 10 )..step( 1 )..onChange( createBVH );
     gui.addSlider( params, 'depth', 1, 8 )..step( 1 )..onChange( createBVH );
     gui.addCheckBox( params, 'meshVisible' ).onChange( ( value ) => icoSphere.visible = value );
 
@@ -144,7 +144,7 @@ class _State extends State<BVHExample> {
   void createBVH(e) {
     if ( helper != null) removeHelper();
 
-    final bvh = yuka.BVH( params['branchingFactor'], params['primitivesPerNode'], params['depth'] );
+    final bvh = yuka.BVH( params['branchingFactor'], params['primitives/Node'], params['depth'] );
     bvh.fromMeshGeometry( meshGeometry );
 
     helper = BVHHelper.createBVHHelper( bvh, params['depth'] );

@@ -10,6 +10,7 @@ import 'package:examples/memory_system/line_of_sight.dart';
 import 'package:examples/memory_system/memory_system.dart';
 import 'package:examples/misc/trigger.dart';
 import 'package:examples/navigation/firsperson.dart';
+import 'package:examples/navigation/nav_advanced.dart';
 import 'package:examples/navigation/nav_basic.dart';
 import 'package:examples/playground/hideseek/hideseek.dart';
 import 'package:examples/playground/shooter/shooter.dart';
@@ -194,6 +195,9 @@ class MyAppState extends State<MyApp> {
               },
               '/nav_basic':(BuildContext context) {
                 return const NavBaisc();
+              },
+              '/nav_advanced':(BuildContext context) {
+                return const NavAdvanced();
               },
               '/first_person':(BuildContext context) {
                 return const FirstPersonNav();

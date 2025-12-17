@@ -8,7 +8,7 @@ import 'plane.dart';
 import 'vector3.dart';
 import 'dart:math' as math;
 
-final localRay = Ray();
+final _localRay = Ray();
 
 /// Class representing a ray in 3D space.
 ///
@@ -236,10 +236,10 @@ class Ray {
 		matrix.setPosition( obb.center );
 
 		// transform ray to the local space of the OBB
-		localRay.copy( this ).applyMatrix4( matrix.getInverse( inverse ) );
+		_localRay.copy( this ).applyMatrix4( matrix.getInverse( inverse ) );
 
 		// perform ray <-> AABB intersection test
-		if ( localRay.intersectAABB( aabb, result ) != null) {
+		if ( _localRay.intersectAABB( aabb, result ) != null) {
 			// transform the intersection point back to world space
 			return result.applyMatrix4( matrix );
 		} 

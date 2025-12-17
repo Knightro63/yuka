@@ -3,17 +3,17 @@ import 'aabb.dart';
 import 'ray.dart';
 import 'vector3.dart';
 
-final v1 = Vector3();
-final v2 = Vector3();
-final v3 = Vector3();
+final _v1 = Vector3();
+final _v2 = Vector3();
+final _v3 = Vector3();
 
-final xAxis = Vector3( 1, 0, 0 );
-final yAxis = Vector3( 0, 1, 0 );
-final zAxis = Vector3( 0, 0, 1 );
+final _xAxis = Vector3( 1, 0, 0 );
+final _yAxis = Vector3( 0, 1, 0 );
+final _zAxis = Vector3( 0, 0, 1 );
 
-final triangle = { 'a': Vector3(), 'b': Vector3(), 'c': Vector3() };
-final intersection = Vector3();
-final intersections = [];
+final _triangle = { 'a': Vector3(), 'b': Vector3(), 'c': Vector3() };
+final _intersection = Vector3();
+final _intersections = [];
 
 /// Class representing a bounding volume hierarchy. The current implementation
 /// represents single BVH nodes as AABBs. It accepts arbitrary branching factors
@@ -53,13 +53,13 @@ class BVH {
 		final primitives = root!.primitives;
 
 		for ( int i = 0, l = primitives.length; i < l; i += 9 ) {
-			v1.fromArray( primitives, i );
-			v2.fromArray( primitives, i + 3 );
-			v3.fromArray( primitives, i + 6 );
+			_v1.fromArray( primitives, i );
+			_v2.fromArray( primitives, i + 3 );
+			_v3.fromArray( primitives, i + 6 );
 
-			v1.add( v2 ).add( v3 ).divideScalar( 3 );
+			_v1.add( _v2 ).add( _v3 ).divideScalar( 3 );
 
-			root?.centroids.addAll([ v1.x, v1.y, v1.z ]);
+			root?.centroids.addAll([ _v1.x, _v1.y, _v1.z ]);
 		}
 
 		// build
@@ -155,11 +155,11 @@ class BVHNode {
 		aabb.max.set( - double.infinity, - double.infinity, - double.infinity );
 
 		for ( int i = 0, l = primitives.length; i < l; i += 3 ) {
-			v1.x = primitives[ i ];
-			v1.y = primitives[ i + 1 ];
-			v1.z = primitives[ i + 2 ];
+			_v1.x = primitives[ i ];
+			_v1.y = primitives[ i + 1 ];
+			_v1.z = primitives[ i + 2 ];
 
-			aabb.expand( v1 );
+			aabb.expand( _v1 );
 		}
 
 		return this;
@@ -208,13 +208,13 @@ class BVHNode {
 		final rangeZ = maxZ - minZ;
 
 		if ( rangeX > rangeY && rangeX > rangeZ ) {
-			return xAxis;
+			return _xAxis;
 		} 
     else if ( rangeY > rangeZ ) {
-			return yAxis;
+			return _yAxis;
 		} 
     else {
-			return zAxis;
+			return _zAxis;
 		}
 	}
 
@@ -236,12 +236,12 @@ class BVHNode {
 		final sortedPrimitiveIndices = [];
 
 		for ( int i = 0, l = centroids.length; i < l; i += 3 ) {
-			v1.fromArray( centroids, i );
+			_v1.fromArray( centroids, i );
 
 			// the result from the dot product is our sort criterion.
 			// it represents the projection of the centroid on the split axis
 
-			final p = v1.dot( axis );
+			final p = _v1.dot( axis );
 			final primitiveIndex = i ~/ 3;
 
 			sortedPrimitiveIndices.add( { 'index': primitiveIndex, 'p': p } );
@@ -279,17 +279,17 @@ class BVHNode {
 			final primitiveIndex = sortedPrimitiveIndices[ i ]['index'];
 			final stride = primitiveIndex * 9; // remember the "primitives" array holds raw vertex data defining triangles
 
-			v1.fromArray( primitives, stride );
-			v2.fromArray( primitives, stride + 3 );
-			v3.fromArray( primitives, stride + 6 );
+			_v1.fromArray( primitives, stride );
+			_v2.fromArray( primitives, stride + 3 );
+			_v3.fromArray( primitives, stride + 6 );
 
-			child.primitives.addAll( [v1.x, v1.y, v1.z] );
-			child.primitives.addAll( [v2.x, v2.y, v2.z] );
-			child.primitives.addAll( [v3.x, v3.y, v3.z] );
+			child.primitives.addAll( [_v1.x, _v1.y, _v1.z] );
+			child.primitives.addAll( [_v2.x, _v2.y, _v2.z] );
+			child.primitives.addAll( [_v3.x, _v3.y, _v3.z] );
 
 			// 2. centroid
-			v1.fromArray( centroids, primitiveIndex * 3 );
-			child.centroids.addAll( [v1.x, v1.y, v1.z] );
+			_v1.fromArray( centroids, primitiveIndex * 3 );
+			child.centroids.addAll( [_v1.x, _v1.y, _v1.z] );
 		}
 
 		// remove centroids/primitives after split from this node
@@ -310,12 +310,12 @@ class BVHNode {
 
 				for ( int i = 0, l = vertices.length; i < l; i += 9 ) {
 					// remember: we assume primitives are triangles
-					triangle['a']?.fromArray( vertices, i );
-					triangle['b']?.fromArray( vertices, i + 3 );
-					triangle['c']?.fromArray( vertices, i + 6 );
+					_triangle['a']?.fromArray( vertices, i );
+					_triangle['b']?.fromArray( vertices, i + 3 );
+					_triangle['c']?.fromArray( vertices, i + 6 );
 
-					if ( ray.intersectTriangle( triangle, true, result ) != null ) {
-						intersections.add( result.clone() );
+					if ( ray.intersectTriangle( _triangle, true, result ) != null ) {
+						_intersections.add( result.clone() );
 					}
 				}
 			} 
@@ -330,20 +330,20 @@ class BVHNode {
 		// determine the closest intersection point in the root node (so after
 		// the hierarchy was processed)
 		if ( root() == true ) {
-			if ( intersections.isNotEmpty ) {
+			if ( _intersections.isNotEmpty ) {
 				double minDistance = double.infinity;
 
-				for ( int i = 0, l = intersections.length; i < l; i ++ ) {
-					final squaredDistance = ray.origin.squaredDistanceTo( intersections[ i ] );
+				for ( int i = 0, l = _intersections.length; i < l; i ++ ) {
+					final squaredDistance = ray.origin.squaredDistanceTo( _intersections[ i ] );
 
 					if ( squaredDistance < minDistance ) {
 						minDistance = squaredDistance;
-						result.copy( intersections[ i ] );
+						result.copy( _intersections[ i ] );
 					}
 				}
 
 				// reset array
-				intersections.length = 0;
+				_intersections.length = 0;
 
 				// return closest intersection point
 				return result;
@@ -362,17 +362,17 @@ class BVHNode {
 	/// Performs a ray/BVH node intersection test. Returns either true or false if
 	/// there is a intersection or not.
 	bool intersectsRay(Ray ray ) {
-		if ( ray.intersectAABB( boundingVolume, intersection ) != null ) {
+		if ( ray.intersectAABB( boundingVolume, _intersection ) != null ) {
 			if ( leaf() == true ) {
 				final vertices = primitives;
 
 				for ( int i = 0, l = vertices.length; i < l; i += 9 ) {
 					// remember: we assume primitives are triangles
-					triangle['a']?.fromArray( vertices, i );
-					triangle['b']?.fromArray( vertices, i + 3 );
-					triangle['c']?.fromArray( vertices, i + 6 );
+					_triangle['a']?.fromArray( vertices, i );
+					_triangle['b']?.fromArray( vertices, i + 3 );
+					_triangle['c']?.fromArray( vertices, i + 6 );
 
-					if ( ray.intersectTriangle( triangle, true, intersection ) != null ) {
+					if ( ray.intersectTriangle( _triangle, true, _intersection ) != null ) {
 						return true;
 					}
 				}

@@ -51,8 +51,6 @@ class BVHelper {
 
     final color = three.Color();
 
-    print(faces.length);
-
     for ( int i = 0; i < faces.length; i ++ ) {
 
       final face = faces[ i ];
@@ -64,10 +62,10 @@ class BVHelper {
 
       centroids.addAll([ centroid.x, centroid.y, centroid.z ]);
 
-      while ( edge != face.edge ) {
+      do{
         edges.add( edge );
         edge = edge?.next;
-      }
+      } while ( edge != face.edge );
 
       // triangulate
       final triangleCount = ( edges.length - 2 );
@@ -92,17 +90,17 @@ class BVHelper {
     convexGeometry.setAttributeFromString( 'position', three.Float32BufferAttribute.fromList( positions, 3 ) );
     convexGeometry.setAttributeFromString( 'color', three.Float32BufferAttribute.fromList( colors, 3 ) );
 
-    final convexMaterial = three.MeshBasicMaterial.fromMap( { 'color': 0xff0000,  } );
+    final convexMaterial = three.MeshBasicMaterial.fromMap( { 'color': 0xff0000,  'wireframe': true } );
     final mesh = three.Mesh( convexGeometry, convexMaterial );
 
     // centroids (useful for debugging)
-    final centroidGeometry = three.BufferGeometry();
-    centroidGeometry.setAttributeFromString( 'position', three.Float32BufferAttribute.fromList( centroids, 3 ) );
+    // final centroidGeometry = three.BufferGeometry();
+    // centroidGeometry.setAttributeFromString( 'position', three.Float32BufferAttribute.fromList( centroids, 3 ) );
 
-    final centroidMaterial = three.PointsMaterial.fromMap( { 'color': 0xffff00, 'size': 0.25 } );
-    final pointCloud = three.Points( centroidGeometry, centroidMaterial );
+    // final centroidMaterial = three.PointsMaterial.fromMap( { 'color': 0xffff00, 'size': 0.25 } );
+    // final pointCloud = three.Points( centroidGeometry, centroidMaterial );
 
-    mesh.add( pointCloud );
+    // mesh.add( pointCloud );
 
     //
     return mesh;

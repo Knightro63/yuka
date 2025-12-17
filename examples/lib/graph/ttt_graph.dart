@@ -137,11 +137,11 @@ class TTTGraph extends Graph {
 		return ( currentPlayer % 2 ) + 1;
 	}
 
-	findNode( board ) {
+	int findNode( board ) {
 		final value = int.parse( board.join( '' ), radix: 10 );
 		final node = nodeMap.get( value );
 
-		return node ? node : - 1;
+		return node ?? - 1;
 	}
 
 	turn( cell, player ) {

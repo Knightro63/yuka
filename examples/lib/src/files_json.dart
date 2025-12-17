@@ -24,6 +24,10 @@ const Map<String,Map<String,Map<String,String>>> filesJson = {
       'name': 'Navigation Mesh (Basic)',
       'description': 'A simple showcase of a navigation mesh.'
     },
+    'nav_advanced':{
+      'name': 'Navigation Mesh (Advanced)',
+      'description': 'An advanced showcase that shows the usage of a spatial index and tasks.'
+    },
     'first_person':{
       'name': 'First-Person Controls',
       'description': 'First-Person example with navigation mesh usage to restrict movement.'

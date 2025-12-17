@@ -72,11 +72,11 @@ class Polygon {
 
 		centroid.set( 0, 0, 0 );
 
-		while ( edge != this.edge ) {
+		do{
 			centroid.add( edge!.vertex );
 			count ++;
 			edge = edge.next;
-		}
+		} while ( edge != this.edge );
 
 		centroid.divideScalar( count.toDouble() );
 
@@ -89,7 +89,7 @@ class Polygon {
 		HalfEdge? edge = this.edge;
 
 		// convex test
-		while ( edge != this.edge ) {
+		do{
 			final v1 = edge!.tail()!;
 			final v2 = edge.head();
 
@@ -98,7 +98,7 @@ class Polygon {
 			}
 
 			edge = edge.next;
-		}
+		} while ( edge != this.edge );
 
 		// ensure the given point lies within a defined tolerance range
 		final distance = plane.distanceToPoint( point );
@@ -114,7 +114,7 @@ class Polygon {
 	bool convex( [bool ccw = true] ) {
 		HalfEdge edge = this.edge!;
 
-		while ( edge != this.edge ) {
+		do{
 			final v1 = edge.tail()!;
 			final v2 = edge.head();
 			final v3 = edge.next!.head();
@@ -126,7 +126,7 @@ class Polygon {
 			}
 
 			edge = edge.next!;
-		}
+		} while ( edge != this.edge );
 
 		return true;
 	}
@@ -136,7 +136,7 @@ class Polygon {
 		final plane = this.plane;
 		HalfEdge? edge = this.edge;
 
-		while ( edge != this.edge ) {
+		do{
 			final distance = plane.distanceToPoint( edge!.vertex );
 
 			if ( distance.abs() > epsilon ) {
@@ -144,7 +144,7 @@ class Polygon {
 			}
 
 			edge = edge.next;
-		}
+		} while ( edge != this.edge );
 
 		return true;
 	}
@@ -161,10 +161,10 @@ class Polygon {
 		HalfEdge? edge = this.edge;
 		result.length = 0;
 
-		while ( edge != this.edge ) {
+		do{
 			result.add( edge!.vertex );
 			edge = edge.next;
-		} 
+		} while ( edge != this.edge );
 
 		return result;
 	}
