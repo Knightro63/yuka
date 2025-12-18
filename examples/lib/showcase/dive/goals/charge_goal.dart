@@ -13,7 +13,7 @@ class ChargeGoal extends CompositeGoal {
 	void activate() {
 		clearSubgoals();
 
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		// seek to the current position of the target
 		final target = owner.targetSystem.getTarget();
@@ -30,6 +30,7 @@ class ChargeGoal extends CompositeGoal {
 
   @override
 	void execute() {
+    final dynamic owner = this.owner;
 		// stop executing if the traget is not visible anymore
 		if ( owner.targetSystem.isTargetShootable() == false ) {
 			status = GoalStatus.completed;

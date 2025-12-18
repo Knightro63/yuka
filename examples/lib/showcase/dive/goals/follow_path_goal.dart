@@ -12,7 +12,7 @@ class FollowPathGoal extends Goal {
 
   @override
 	void activate() {
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 		final path = owner.path;
 
 		//
@@ -50,7 +50,7 @@ class FollowPathGoal extends Goal {
   @override
 	void execute() {
 		if ( active ) {
-			final owner = this.owner;
+			final dynamic owner = this.owner;
 
 			if ( owner.atPosition( to ) ) {
 				status = GoalStatus.completed;
@@ -60,7 +60,7 @@ class FollowPathGoal extends Goal {
 
   @override
 	void terminate() {
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		final followPathBehavior = owner.steering.behaviors[ 0 ];
 		followPathBehavior.active = false;

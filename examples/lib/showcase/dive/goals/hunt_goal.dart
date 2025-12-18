@@ -13,7 +13,7 @@ class HuntGoal extends CompositeGoal {
 	void activate() {
 		clearSubgoals();
 
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		// seek to the last sensed position
 		final targetPosition = owner.targetSystem.getLastSensedPosition();
@@ -30,7 +30,7 @@ class HuntGoal extends CompositeGoal {
 
   @override
 	void execute() {
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		// hunting is not necessary if the target becomes visible again
 		if ( owner.targetSystem.isTargetShootable() ) {

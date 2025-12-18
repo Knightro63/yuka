@@ -1,4 +1,5 @@
 import 'package:examples/showcase/dive/core/constants.dart';
+import 'package:examples/showcase/dive/entities/player.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'package:yuka/yuka.dart';
 
@@ -33,14 +34,11 @@ abstract class Weapon extends GameEntity {
 	int status = WEAPON_STATUS_UNREADY;
 	int previousState = WEAPON_STATUS_READY;
 
+  FuzzyModule? fuzzyModule;
+  three.Sprite? muzzle;
+
 	Weapon(this.owner ):super() {
 		canActivateTrigger = false;
-
-		// used for weapon selection
-		this.fuzzyModule = null;
-
-		// render specific properties
-		this.muzzle = null;
 	}
 
 	/// Adds the given amount of rounds to the ammo.
@@ -74,7 +72,7 @@ abstract class Weapon extends GameEntity {
 		}
 
 		if ( owner is Player ) {
-			owner.world.uiManager.updateAmmoStatus();
+			(owner as Player).world.uiManager.updateAmmoStatus();
 		}
 
 		return this;

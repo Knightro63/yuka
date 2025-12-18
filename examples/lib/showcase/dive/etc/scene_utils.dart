@@ -20,12 +20,12 @@ class SceneUtils {
 		source.traverse( ( sourceMesh ) {
 			if (sourceMesh is! three.SkinnedMesh ) return;
 
-			final sourceBones = sourceMesh.skeleton.bones;
+			final sourceBones = sourceMesh.skeleton?.bones;
 			final clonedMesh = cloneLookup[sourceMesh];
 
 			clonedMesh.skeleton = sourceMesh.skeleton?.clone();
 
-			clonedMesh.skeleton.bones = sourceBones.map( ( sourceBone ) {
+			clonedMesh.skeleton.bones = sourceBones?.map( ( sourceBone ) {
 
 				if ( ! cloneLookup.containsValue( sourceBone ) ) {
 					throw( 'SceneUtils: Required bones are not descendants of the given object.' );
@@ -80,8 +80,8 @@ class SceneUtils {
 		final lines = three.LineSegments( geometry, three.LineBasicMaterial.fromMap( { 'color': 0xffffff } ) );
 		lines.matrixAutoUpdate = false;
 
-		hitbox.getCenter( lines.position );
-		hitbox.getSize( lines.scale );
+		hitbox.getCenter( Vector3().fromArray(lines.position.storage) );
+		hitbox.getSize( Vector3().fromArray(lines.scale.storage) );
 		lines.scale.scale( 0.5 );
 		lines.updateMatrix();
 
@@ -90,7 +90,7 @@ class SceneUtils {
 	}
 
 	/// Creates helper points to visualize the spawning points of the game.
-	static three.Group createSpawnPointHelper(List<Vector3> spawnPoints ) {
+	static three.Group createSpawnPointHelper(List spawnPoints ) {
 		final group = three.Group();
 		group.matrixAutoUpdate = false;
 

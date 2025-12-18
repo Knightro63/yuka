@@ -1,35 +1,24 @@
+import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:yuka/yuka.dart';
 
-final visibleRecords = [];
-final invisibleRecords = [];
 
-/**
-* Class to select a target from the opponents currently in a bot's perceptive memory.
-*
-* @author {@link https://github.com/robp94|robp94}
-*/
+/// Class to select a target from the opponents currently in a bot's perceptive memory.
+///
+/// @author {@link https://github.com/robp94|robp94}
 class TargetSystem {
+  final visibleRecords = [];
+  final invisibleRecords = [];
 
-	/**
-	* finalructs a new target system with the given values.
-	*
-	* @param {GameEntity} owner - The owner of this weapon system.
-	*/
-	TargetSystem( owner ) {
-		this.owner = owner; // enemy
-		this._currentRecord = null; // represents the memory record of the current target
-	}
+  dynamic owner;
+  dynamic _currentRecord;
+	TargetSystem( this.owner );
 
-	/**
-	* Updates the target system internal state.
-	*
-	* @return {TargetSystem} A reference to this target system.
-	*/
+	/// Updates the target system internal state.
 	TargetSystem update() {
-		final records = this.owner.memoryRecords;
+		final records = owner.memoryRecords;
 
 		// reset
-		this._currentRecord = null;
+		_currentRecord = null;
 
 		visibleRecords.length = 0;
 		invisibleRecords.length = 0;
@@ -53,24 +42,24 @@ class TargetSystem {
 
 			for ( int i = 0, l = visibleRecords.length; i < l; i ++ ) {
 				final record = visibleRecords[ i ];
-				final distance = this.owner.position.squaredDistanceTo( record.lastSensedPosition );
+				final distance = owner.position.squaredDistanceTo( record.lastSensedPosition );
 
 				if ( distance < minDistance ) {
 					minDistance = distance;
-					this._currentRecord = record;
+					_currentRecord = record;
 				}
 			}
 		} 
     else if ( invisibleRecords.isNotEmpty ) {
 			// if there are invisible records, select the one that was last sensed
-			let maxTimeLastSensed = - double.infinity;
+			double maxTimeLastSensed = - double.infinity;
 
 			for ( int i = 0, l = invisibleRecords.length; i < l; i ++ ) {
 				final record = invisibleRecords[ i ];
 
-				if ( record.timeLastSensed > maxTimeLastSensed ) {
+				if ( record.timeLastSensed > maxTimeLastSensed ){
 					maxTimeLastSensed = record.timeLastSensed;
-					this._currentRecord = record;
+					_currentRecord = record;
 				}
 			}
 		}
@@ -78,65 +67,39 @@ class TargetSystem {
 		return this;
 	}
 
-	/**
-	* Resets the internal data structures.
-	*
-	* @return {TargetSystem} A reference to this target system.
-	*/
+	/// Resets the internal data structures.
 	TargetSystem reset() {
-		this._currentRecord = null;
+		_currentRecord = null;
 		return this;
 	}
 
-	/**
-	* Checks if the target is shootable/visible or not
-	*
-	* @return {Boolean} Whether the target is shootable/visible or not.
-	*/
+	/// Checks if the target is shootable/visible or not
 	bool isTargetShootable() {
-		return this._currentRecord.visible ?? false;
+		return _currentRecord.visible ?? false;
 	}
 
-	/**
-	* Returns the last sensed position of the target, or null if there is no target.
-	*
-	* @return {Vector3} The last sensed position of the target.
-	*/
+	/// Returns the last sensed position of the target, or null if there is no target.
 	Vector3? getLastSensedPosition() {
-		return this._currentRecord.lastSensedPosition;
+		return _currentRecord.lastSensedPosition;
 	}
 
-	/**
-	* Returns the time when the target was last sensed or -1 if there is none.
-	*
-	* @return {Number} The time when the target was last sensed.
-	*/
+	/// Returns the time when the target was last sensed or -1 if there is none.
 	double getTimeLastSensed() {
-		return this._currentRecord.timeLastSensed ?? - 1;
+		return _currentRecord.timeLastSensed ?? - 1;
 	}
 
-	/**
-	* Returns the time when the target became visible or -1 if there is none.
-	*
-	* @return {Number} The time when the target became visible.
-	*/
+	/// Returns the time when the target became visible or -1 if there is none.
 	double getTimeBecameVisible() {
-		return this._currentRecord.timeBecameVisible ?? - 1;
+		return _currentRecord.timeBecameVisible ?? - 1;
 	}
 
-	/** Returns the current target if there is one.
-	*
-	* @returns {Enemy} Returns the current target if there is one, else null.
-	*/
+	/// Returns the current target if there is one.
 	Enemy getTarget() {
-		return this._currentRecord.entity;
+		return _currentRecord.entity;
 	}
 
-	/** Returns true if the enemy has an active target.
-	*
-	* @returns {Boolean} Whether the enemy has an active target or not.
-	*/
+	/// Returns true if the enemy has an active target.
 	bool hasTarget() {
-		return this._currentRecord != null;
+		return _currentRecord != null;
 	}
 }

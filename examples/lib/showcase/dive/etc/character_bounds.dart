@@ -14,7 +14,7 @@ class CharacterBounds {
   final _outerHitboxDefinition = AABB();
 
   final Map<String,dynamic> _cache = {};
-  List _innerHitboxes = [];
+  final List _innerHitboxes = [];
 
 	CharacterBounds( this.owner );
 
@@ -159,6 +159,8 @@ class CharacterBounds {
 	/// Returns the current inverse matrix for the given bone. A cache system ensures, the inverse matrix
 	/// is computed only once per simulation step.
 	Matrix4 _getInverseBoneMatrix( three.Bone bone ) {
+    final dynamic owner = this.owner;
+    
 		final world = owner.world;
 		final tick = world.tick;
 
@@ -166,7 +168,7 @@ class CharacterBounds {
 		let entry = _cache[bone];
 
 		if ( entry == null ) {
-			entry = { 'tick': tick, 'inverseBoneMatrix': Matrix4().getInverse( bone.matrixWorld ) };
+			entry = { 'tick': tick, 'inverseBoneMatrix': Matrix4().fromArray( bone.matrixWorld.invert().storage ) };
 			_cache[bone] = entry;
 		} 
     else {

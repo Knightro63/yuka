@@ -18,11 +18,12 @@ class GetHealthEvaluator extends GoalEvaluator {
 	/// of a goal.
   @override
 	double calculateDesirability(GameEntity owner ) {
+    final dynamic temp = owner;
 		double desirability = 0;
 
-		if ( owner.isItemIgnored( itemType ) == false && owner.health < owner.maxHealth ) {
-			final distanceScore = Feature.distanceToItem( owner, itemType );
-			final healthScore = Feature.health( owner );
+		if ( temp.isItemIgnored( itemType ) == false && temp.health < temp.maxHealth ) {
+			final distanceScore = Feature.distanceToItem( temp, itemType! );
+			final healthScore = Feature.health( temp );
 
 			desirability = tweaker * ( 1 - healthScore ) / distanceScore;
 			desirability = MathUtils.clamp( desirability, 0, 1 );
@@ -34,11 +35,12 @@ class GetHealthEvaluator extends GoalEvaluator {
 	/// Executed if this goal evaluator produces the highest desirability.
   @override
 	GetHealthEvaluator setGoal(GameEntity owner ) {
-		final currentSubgoal = owner.brain.currentSubgoal();
+    final dynamic temp = owner;
+		final currentSubgoal = temp.brain.currentSubgoal();
 
 		if (currentSubgoal is! GetItemGoal) {
-			owner.brain.clearSubgoals();
-			owner.brain.addSubgoal( GetItemGoal( owner, itemType ) );
+			temp.brain.clearSubgoals();
+			temp.brain.addSubgoal( GetItemGoal( temp, itemType ) );
 		}
 
     return this;

@@ -1,5 +1,5 @@
 
-import 'package:examples/showcase/dive/entities/enemy.dart';
+import 'package:examples/showcase/dive/core/feature.dart';
 import 'package:examples/showcase/dive/goals/attack_goal.dart';
 import 'package:yuka/yuka.dart';
 
@@ -16,11 +16,11 @@ class AttackEvaluator extends GoalEvaluator {
 	/// of a goal.
   @override
 	double calculateDesirability(GameEntity owner ) {
-    owner as Enemy;
-		int desirability = 0;
+    final dynamic temp = owner;
+		double desirability = 0;
 
-		if ( owner.targetSystem.hasTarget() ) {
-			desirability = this.tweaker * Feature.totalWeaponStrength( owner ) * Feature.health( owner );
+		if ( temp.targetSystem.hasTarget() ) {
+			desirability = tweaker * Feature.totalWeaponStrength( temp ) * Feature.health( temp );
 		}
 
 		return desirability;
@@ -29,11 +29,12 @@ class AttackEvaluator extends GoalEvaluator {
 	/// Executed if this goal evaluator produces the highest desirability.
   @override
 	AttackEvaluator setGoal(GameEntity owner ) {
-		final currentSubgoal = owner.brain.currentSubgoal();
+    final dynamic temp = owner;
+		final currentSubgoal = temp.brain.currentSubgoal();
 
 		if ( currentSubgoal is! AttackGoal) {
-			owner.brain.clearSubgoals();
-			owner.brain.addSubgoal( AttackGoal( owner ) );
+			temp.brain.clearSubgoals();
+			temp.brain.addSubgoal( AttackGoal( temp ) );
 		}
 
     return this;

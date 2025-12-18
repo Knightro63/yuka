@@ -17,12 +17,13 @@ class GetWeaponEvaluator extends GoalEvaluator {
 	/// of a goal.
   @override
 	double calculateDesirability(GameEntity owner ) {
+    final dynamic temp = owner;
 		double desirability = 0;
 
-		if ( owner.isItemIgnored( itemType ) == false ) {
-			final distanceScore = Feature.distanceToItem( owner, itemType );
-			final weaponScore = Feature.individualWeaponStrength( owner, itemType );
-			final healthScore = Feature.health( owner );
+		if ( temp.isItemIgnored( itemType ) == false ) {
+			final distanceScore = Feature.distanceToItem( temp, itemType! );
+			final weaponScore = Feature.individualWeaponStrength( temp, itemType );
+			final healthScore = Feature.health( temp );
 
 			desirability = tweaker * ( 1 - weaponScore ) * healthScore / distanceScore;
 
@@ -33,12 +34,14 @@ class GetWeaponEvaluator extends GoalEvaluator {
 	}
 
 	/// Executed if this goal evaluator produces the highest desirability.
+  @override
 	GetWeaponEvaluator setGoal(GameEntity owner ) {
-		final currentSubgoal = owner.brain.currentSubgoal();
+    final dynamic temp = owner;
+		final currentSubgoal = temp.brain.currentSubgoal();
 
 		if (currentSubgoal is! GetItemGoal) {
-			owner.brain.clearSubgoals();
-			owner.brain.addSubgoal( GetItemGoal( owner, itemType ) );
+			temp.brain.clearSubgoals();
+			temp.brain.addSubgoal( GetItemGoal( temp, itemType ) );
 		}
 
     return this;

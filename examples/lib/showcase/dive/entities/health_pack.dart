@@ -1,6 +1,8 @@
 import 'package:examples/showcase/dive/core/config.dart';
 import 'package:examples/showcase/dive/core/constants.dart';
+import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:examples/showcase/dive/entities/item.dart';
+import 'package:examples/showcase/dive/entities/player.dart';
 import 'package:yuka/yuka.dart';
 
 /// A game entity which represents a collectable health pack.
@@ -14,7 +16,8 @@ class HealthPack extends Item {
 	/// Adds the health to the given entity.
   @override
 	HealthPack addItemToEntity(GameEntity entity ) {
-		entity.addHealth( health ); // we assume .addHealth() is implemented by the game entity
+		if(entity is Player) entity.addHealth( type );
+    if(entity is Enemy) entity.addHealth( type );
 		return this;
 	}
 }

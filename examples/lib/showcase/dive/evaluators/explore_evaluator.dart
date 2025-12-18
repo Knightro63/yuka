@@ -19,11 +19,12 @@ class ExploreEvaluator extends GoalEvaluator {
 	/// Executed if this goal evaluator produces the highest desirability.
   @override
 	ExploreEvaluator setGoal(GameEntity owner ) {
-		const currentSubgoal = owner.brain.currentSubgoal();
+    final dynamic temp = owner;
+		final currentSubgoal = temp.brain.currentSubgoal();
 
 		if ( currentSubgoal is! ExploreGoal ) {
-			owner.brain.clearSubgoals();
-			owner.brain.addSubgoal( ExploreGoal( owner ) );
+			temp.brain.clearSubgoals();
+			temp.brain.addSubgoal( ExploreGoal( temp ) );
 		}
 
     return this;

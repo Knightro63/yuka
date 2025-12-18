@@ -30,7 +30,7 @@ class Projectile extends MovingEntity {
 	/// Update method of this projectile.
   @override
 	Projectile update(double delta ) {
-		final world = owner.world;
+		final world = (owner as dynamic).world;
 
 		currentTime += delta;
 

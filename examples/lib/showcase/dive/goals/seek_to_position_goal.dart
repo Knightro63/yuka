@@ -12,7 +12,7 @@ class SeekToPositionGoal extends Goal {
 
   @override
 	void activate() {
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		final seekBehavior = owner.steering.behaviors[ 2 ];
 		seekBehavior.target.copy( target );
@@ -21,6 +21,7 @@ class SeekToPositionGoal extends Goal {
 
   @override
 	void execute() {
+    final dynamic owner = this.owner;
 		if ( owner.atPosition( target ) ) {
 			status = GoalStatus.completed;
 		}
@@ -28,6 +29,7 @@ class SeekToPositionGoal extends Goal {
 
   @override
 	void terminate() {
+    final dynamic owner = this.owner;
 		final seekBehavior = owner.steering.behaviors[ 2 ];
 		seekBehavior.active = false;
 	}

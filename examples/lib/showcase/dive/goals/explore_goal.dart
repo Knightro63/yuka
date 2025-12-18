@@ -13,7 +13,7 @@ class ExploreGoal extends CompositeGoal {
 
   @override
 	void activate() {
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		// if this goal is reactivated then there may be some existing subgoals that must be removed
 		clearSubgoals();

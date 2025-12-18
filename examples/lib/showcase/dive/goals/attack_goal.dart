@@ -17,7 +17,7 @@ class AttackGoal extends CompositeGoal {
 	void activate() {
 		// if this goal is reactivated then there may be some existing subgoals that must be removed
 		clearSubgoals();
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		// if the enemy is able to shoot the target (there is line of sight between enemy and
 		// target), then select a tactic to follow while shooting
@@ -44,7 +44,7 @@ class AttackGoal extends CompositeGoal {
 	void execute() {
 		// it is possible for a enemy's target to die while this goal is active so we
 		// must test to make sure the enemy always has an active target
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		if ( owner.targetSystem.hasTarget() == false ) {
 			status = GoalStatus.completed;
@@ -66,6 +66,6 @@ class AttackGoal extends CompositeGoal {
 
   @override
 	void terminate() {
-		this.clearSubgoals();
+		clearSubgoals();
 	}
 }

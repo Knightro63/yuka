@@ -1,3 +1,4 @@
+import 'package:examples/showcase/dive/goals/seek_to_position_goal.dart';
 import 'package:yuka/yuka.dart';
 
 /// Sub-goal which makes the enemy dodge from side to side.
@@ -15,7 +16,7 @@ class DodgeGoal extends CompositeGoal {
 	void activate() {
 		clearSubgoals();
 
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		if ( right) {
 			// dodge to right as long as there is enough space
@@ -44,7 +45,7 @@ class DodgeGoal extends CompositeGoal {
   @override
 	void execute() {
 		if ( active ) {
-			final owner = this.owner;
+			final dynamic owner = this.owner;
 
 			// stop executing if the traget is not visible anymore
 			if ( owner.targetSystem.isTargetShootable() == false ) {

@@ -11,21 +11,20 @@ import 'package:yuka/yuka.dart';
 class GetItemGoal extends CompositeGoal {
   final Map<String,dynamic> result = { 'distance': double.infinity, 'item': null };
   Item? item;
+  int? itemType;
   final regulator = Regulator( config['BOT']['GOAL']['ITEM_VISIBILITY_UPDATE_FREQUENCY'] );
 
-	GetItemGoal( super.owner, itemType, [this.item]) {
-		this.itemType = itemType;
-	}
+	GetItemGoal( super.owner, [this.itemType, this.item]);
 
   @override
 	void activate() {
-		final  owner = this.owner;
+		final dynamic owner = this.owner;
 
 		// if this goal is reactivated then there may be some existing subgoals that must be removed
 		clearSubgoals();
 
 		// get closest available item of the given type
-		owner.world.getClosestItem( owner, this.itemType, result );
+		owner.world.getClosestItem( owner, itemType, result );
 		item = result['item'];
 
 		if ( item != null) {
@@ -43,7 +42,7 @@ class GetItemGoal extends CompositeGoal {
 			status = GoalStatus.failed;
 
 			// ensure the bot does not look for this type of item for a while
-			owner.ignoreItem( this.itemType );
+			owner.ignoreItem( itemType );
 		}
 	}
 

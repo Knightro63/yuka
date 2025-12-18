@@ -1,4 +1,6 @@
+import 'package:examples/playground/hideseek/enemy.dart';
 import 'package:examples/showcase/dive/entities/item.dart';
+import 'package:examples/showcase/dive/entities/player.dart';
 import 'package:yuka/yuka.dart';
 
 /// A game entity which represents a collectable weapon item.
@@ -12,7 +14,8 @@ class WeaponItem extends Item {
 	/// Adds the weapon to the given entity.
   @override
 	WeaponItem addItemToEntity(GameEntity entity ) {
-		entity.addWeapon( type );
+		if(entity is Player) entity.addWeapon( type );
+    if(entity is Enemy) entity.addWeapon( type );
 		return this;
 	}
 }

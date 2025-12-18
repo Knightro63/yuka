@@ -8,7 +8,7 @@ abstract class Item extends GameEntity {
   double nextSpawnTime = double.infinity;
   double currentTime = 0;
   int type;
-  currentRegion;
+  List<Polygon>? currentRegion;
 
 	Item( this.type, this.respawnTime ):super() {
     canActivateTrigger = false;

@@ -6,6 +6,7 @@ import 'trigger.dart';
 ///
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class TriggerRegion {
+  double radius = 0;
 
 	/// Returns true if the bounding volume of the given game entity touches/intersects
 	/// the trigger region. Must be implemented by all concrete trigger regions.

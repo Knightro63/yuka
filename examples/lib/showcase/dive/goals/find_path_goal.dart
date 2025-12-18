@@ -13,7 +13,7 @@ class FindPathGoal extends Goal {
 
   @override
 	void activate() {
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 		final pathPlanner = owner.world.pathPlanner;
 
 		owner.path = null; // reset previous path
@@ -24,7 +24,7 @@ class FindPathGoal extends Goal {
 
   @override
 	void execute() {
-		final owner = this.owner;
+		final dynamic owner = this.owner;
 
 		if ( owner.path ) {
 			// when a path was found, mark this goal as completed

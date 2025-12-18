@@ -1,5 +1,7 @@
+import 'package:examples/playground/hideseek/enemy.dart';
 import 'package:examples/showcase/dive/core/config.dart';
 import 'package:examples/showcase/dive/core/constants.dart';
+import 'package:examples/showcase/dive/entities/player.dart';
 import 'package:examples/showcase/dive/weapons/weapon.dart';
 import 'package:yuka/yuka.dart';
 import 'package:three_js/three_js.dart' as three;
@@ -64,7 +66,7 @@ class Shotgun extends Weapon {
 
 			// update UI
 			if ( owner is Player ) {
-				owner.world.uiManager.updateAmmoStatus();
+				(owner as Player).world.uiManager.updateAmmoStatus();
 			}
 
 			status = WEAPON_STATUS_READY;
@@ -73,7 +75,7 @@ class Shotgun extends Weapon {
 
 		// check muzzle fire
 		if ( currentTime >= endTimeMuzzleFire ) {
-			this.muzzle.visible = false;
+			muzzle?.visible = false;
 			endTimeMuzzleFire = double.infinity;
 		}
 
@@ -128,8 +130,8 @@ class Shotgun extends Weapon {
 		}
 
 		// muzzle fire
-		this.muzzle.visible = true;
-		this.muzzle.material.rotation = math.Random().nextDouble() *math.pi;
+		muzzle?.visible = true;
+		muzzle?.material?.rotation = math.Random().nextDouble() *math.pi;
 
 		endTimeMuzzleFire = currentTime + muzzleFireTime;
 
@@ -147,8 +149,12 @@ class Shotgun extends Weapon {
 			_spread.z = ( 1 - math.Random().nextDouble() * 2 ) * spread;
 
 			r.direction.add( _spread ).normalize();
-
-			owner.world.addBullet( owner, r );
+      if(owner is Player) {
+        (owner as Player).world.addBullet( owner, r );
+      }
+      else if(owner is Enemy){
+        (owner as Enemy).world.addBullet( owner, r );
+      }
 		}
 
 		// adjust ammo
@@ -161,24 +167,31 @@ class Shotgun extends Weapon {
 	}
 
 	/// Returns a value representing the desirability of using the weapon.
+  @override
 	int getDesirability(double distance ) {
-		this.fuzzyModule.fuzzify( 'distanceToTarget', distance );
-		this.fuzzyModule.fuzzify( 'ammoStatus', this.roundsLeft );
+		fuzzyModule?.fuzzify( 'distanceToTarget', distance );
+		fuzzyModule?.fuzzify( 'ammoStatus', roundsLeft.toDouble() );
 
-		return this.fuzzyModule.defuzzify( 'desirability' ) / 100;
+		return fuzzyModule!.defuzzify( 'desirability' ) ~/ 100;
 	}
 
 	/// Inits animations for this weapon. Only used for the player.
 	Shotgun initAnimations() {
-		final assetManager = owner.world.assetManager;
+		late final dynamic assetManager;
+    if(owner is Player) {
+      assetManager = (owner as Player).world.assetManager;
+    }
+    else if(owner is Enemy){
+      assetManager = (owner as Enemy).world.assetManager;
+    }
 
-		final mixer = three.AnimationMixer( this );
+		final mixer = three.AnimationMixer( renderComponent );
 		final animations = <String,three.AnimationAction?>{};
 
-		final shotClip = assetManager.animations.get( 'shotgun_shot' );
-		final reloadClip = assetManager.animations.get( 'shotgun_reload' );
-		final hideClip = assetManager.animations.get( 'shotgun_hide' );
-		final equipClip = assetManager.animations.get( 'shotgun_equip' );
+		final shotClip = assetManager.animations['shotgun_shot'];
+		final reloadClip = assetManager.animations['shotgun_reload'];
+		final hideClip = assetManager.animations['shotgun_hide'];
+		final equipClip = assetManager.animations['shotgun_equip'];
 
 		final shotAction = mixer.clipAction( shotClip );
 		shotAction?.loop = three.LoopOnce;
