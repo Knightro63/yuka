@@ -34,6 +34,14 @@ analysis_options.yaml
 */windows
 */test
 
+macos/*
+web/*
+ios/*
+android/*
+linux/*
+windows/*
+test/*
+
 # Flutter repo-specific
 /bin/cache/
 /bin/internal/bootstrap.bat
