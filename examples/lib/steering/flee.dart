@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'package:three_js_helpers/three_js_helpers.dart';
 import 'package:yuka/yuka.dart' as yuka;
-import 'package:examples/src/gui.dart';
 
 class SteeringFlee extends StatefulWidget {
   const SteeringFlee({super.key});
@@ -13,12 +12,10 @@ class SteeringFlee extends StatefulWidget {
 }
 
 class _State extends State<SteeringFlee> {
-  late Gui panel;
   late three.ThreeJS threeJs;
 
   @override
   void initState() {
-    panel = Gui((){setState(() {});});
     threeJs = three.ThreeJS(
       onSetupComplete: (){setState(() {});},
       setup: setup,
@@ -40,15 +37,6 @@ class _State extends State<SteeringFlee> {
         children: [
           threeJs.build(),
           Text('This steering behavior produces a force that steers an agent away from a target position. \nThe target position is defined by the mouse cursor.'),
-          if(threeJs.mounted)Positioned(
-            top: 20,
-            right: 20,
-            child: SizedBox(
-              height: threeJs.height,
-              width: 240,
-              child: panel.render()
-            )
-          ),
         ],
       ) 
     );

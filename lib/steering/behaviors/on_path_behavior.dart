@@ -16,7 +16,7 @@ class OnPathBehavior extends SteeringBehavior {
   final lineSegment = LineSegment();
   final closestNormalPoint = Vector3();
 
-  late final Path path;
+  late Path path;
   double radius;
   double predictionFactor;
   final _seek = SeekBehavior();

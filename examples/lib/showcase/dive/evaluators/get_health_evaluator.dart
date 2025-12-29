@@ -1,4 +1,6 @@
+import "package:examples/showcase/dive/core/constants.dart";
 import "package:examples/showcase/dive/core/feature.dart";
+import "package:examples/showcase/dive/entities/enemy.dart";
 import "package:examples/showcase/dive/goals/get_item_goal.dart";
 import "package:yuka/yuka.dart";
 
@@ -8,7 +10,7 @@ import "package:yuka/yuka.dart";
 ///* @author {@link https://github.com/Mugen87|Mugen87}
 /// @author {@link https://github.com/robp94|robp94}
 class GetHealthEvaluator extends GoalEvaluator {
-  int? itemType;
+  ItemType? itemType;
   double tweaker = 0.2;
 
 	/// Constructs a new get health goal evaluator.
@@ -18,12 +20,12 @@ class GetHealthEvaluator extends GoalEvaluator {
 	/// of a goal.
   @override
 	double calculateDesirability(GameEntity owner ) {
-    final dynamic temp = owner;
+    owner as Enemy;
 		double desirability = 0;
 
-		if ( temp.isItemIgnored( itemType ) == false && temp.health < temp.maxHealth ) {
-			final distanceScore = Feature.distanceToItem( temp, itemType! );
-			final healthScore = Feature.health( temp );
+		if ( owner.isItemIgnored( itemType! ) == false && owner.health < owner.maxHealth ) {
+			final distanceScore = Feature.distanceToItem( owner, itemType! );
+			final healthScore = Feature.health( owner );
 
 			desirability = tweaker * ( 1 - healthScore ) / distanceScore;
 			desirability = MathUtils.clamp( desirability, 0, 1 );
@@ -35,12 +37,12 @@ class GetHealthEvaluator extends GoalEvaluator {
 	/// Executed if this goal evaluator produces the highest desirability.
   @override
 	GetHealthEvaluator setGoal(GameEntity owner ) {
-    final dynamic temp = owner;
-		final currentSubgoal = temp.brain.currentSubgoal();
+    owner as Enemy;
+		final currentSubgoal = owner.brain.currentSubgoal();
 
 		if (currentSubgoal is! GetItemGoal) {
-			temp.brain.clearSubgoals();
-			temp.brain.addSubgoal( GetItemGoal( temp, itemType ) );
+			owner.brain.clearSubgoals();
+			owner.brain.addSubgoal( GetItemGoal( owner, itemType ) );
 		}
 
     return this;

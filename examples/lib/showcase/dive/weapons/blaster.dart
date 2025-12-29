@@ -1,3 +1,4 @@
+import 'package:examples/showcase/dive/core/asset_manager.dart';
 import 'package:examples/showcase/dive/core/config.dart';
 import 'package:examples/showcase/dive/core/constants.dart';
 import 'package:examples/showcase/dive/entities/enemy.dart';
@@ -15,7 +16,7 @@ class Blaster extends Weapon {
   double muzzleFireTime = 0;
 
 	Blaster( super.owner ) {
-		type = WEAPON_TYPES_BLASTER;
+		type = ItemType.blaster;
 
 		// common weapon properties
 		roundsLeft = config['BLASTER']['ROUNDS_LEFT'];
@@ -28,6 +29,8 @@ class Blaster extends Weapon {
 		equipTime = config['BLASTER']['EQUIP_TIME'];
 		hideTime = config['BLASTER']['HIDE_TIME'];
 		muzzleFireTime = config['BLASTER']['MUZZLE_TIME'];
+
+    initAnimations();
 	}
 
 	/// Update method of this weapon./
@@ -36,7 +39,6 @@ class Blaster extends Weapon {
 		super.update( delta );
 
 		// check reload
-
 		if ( currentTime >= endTimeReload ) {
 			final toReload = roundsPerClip - roundsLeft;
 
@@ -54,7 +56,7 @@ class Blaster extends Weapon {
 				(owner as Player).world.uiManager.updateAmmoStatus();
 			}
 
-			status = WEAPON_STATUS_READY;
+			status = WeaponStatus.ready;
 			endTimeReload = double.infinity;
 		}
 
@@ -69,14 +71,14 @@ class Blaster extends Weapon {
 		if ( currentTime >= endTimeShot ) {
 			if ( roundsLeft == 0 ) {
 				if ( ammo == 0 ) {
-					status = WEAPON_STATUS_OUT_OF_AMMO;
+					status = WeaponStatus.outOfAmmo;
 				} 
         else {
-					status = WEAPON_STATUS_EMPTY;
+					status = WeaponStatus.empty;
 				}
 			} 
       else {
-				status = WEAPON_STATUS_READY;
+				status = WeaponStatus.ready;
 			}
 
 			endTimeShot = double.infinity;
@@ -88,7 +90,7 @@ class Blaster extends Weapon {
 	/// Reloads the weapon.
   @override
 	Blaster reload() {
-		status = WEAPON_STATUS_RELOAD;
+		status = WeaponStatus.reload;
 
 		// animation
 		if ( mixer != null) {
@@ -105,7 +107,7 @@ class Blaster extends Weapon {
 	/// Shoots at the given position.
   @override
 	Blaster shoot( Vector3 targetPosition ) {
-		status = WEAPON_STATUS_SHOT;
+		status = WeaponStatus.shot;
 
 		// animation
 		if ( mixer != null) {
@@ -138,6 +140,7 @@ class Blaster extends Weapon {
 		// add bullet to world
     if(owner is Player) {
       (owner as Player).world.addBullet( owner, ray );
+      (owner as Player).world.updateUI();
     }
     else if(owner is Enemy){
       (owner as Enemy).world.addBullet( owner, ray );
@@ -161,21 +164,21 @@ class Blaster extends Weapon {
 
 	/// Inits animations for this weapon. Only used for the player.
 	Blaster initAnimations() {
-		late final dynamic assetManager;
+		late final AssetManager assetManager;
     if(owner is Player) {
-      assetManager = (owner as Player).world.assetManager;
+      assetManager = (owner as Player).world.assetManager!;
     }
     else if(owner is Enemy){
-      assetManager = (owner as Enemy).world.assetManager;
+      assetManager = (owner as Enemy).world.assetManager!;
     }
     
-		final mixer = three.AnimationMixer( renderComponent );
+		final mixer = three.AnimationMixer( assetManager.models['blaster_high'] );
 		final animations = <String,three.AnimationAction?>{};
 
-		final shotClip = assetManager.animations.get( 'blaster_shot' );
-		final reloadClip = assetManager.animations.get( 'blaster_reload' );
-		final hideClip = assetManager.animations.get( 'blaster_hide' );
-		final equipClip = assetManager.animations.get( 'blaster_equip' );
+		final shotClip = assetManager.animations['blaster_shot'];
+		final reloadClip = assetManager.animations['blaster_reload'];
+		final hideClip = assetManager.animations['blaster_hide'];
+		final equipClip = assetManager.animations['blaster_equip'];
 
 		final shotAction = mixer.clipAction( shotClip );
 		shotAction?.loop = three.LoopOnce;

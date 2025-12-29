@@ -16,7 +16,6 @@ This is a dart conversion of yuka, originally created by [@Mugen87](https://gith
 * **Perception:** Create game entities with a short-term memory and a vision component.
 * **Trigger:** Use triggers to generate dynamic actions in your game.
 * **Fuzzy Logic:** Make your game entities smarter with Yuka's fuzzy inference system.
-* **JSON:** Save and load the current state of your game by using a serialization/deserialization API based on JSON.
 
 Yuka is a standalone library and independent of a particular 3D engine.
 

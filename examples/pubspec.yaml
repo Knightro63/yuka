@@ -20,6 +20,7 @@ dependencies:
       url: https://github.com/helgoboss/pointer_lock.git
   three_js: ^0.2.5
   three_js_helpers: ^0.2.3
+  three_js_objects: ^0.2.1
   yuka:
     path: ../
 
@@ -50,3 +51,8 @@ flutter:
     - assets/models/
     - assets/models/house/
     - assets/textures/
+    - assets/showcase/textures/
+    - assets/showcase/animations/
+    - assets/showcase/models/
+    - assets/showcase/nav/
+    - assets/showcase/config/

@@ -156,6 +156,7 @@ class YukaFirstPersonControls extends EventDispatcher {
   }
 
   void onKeyDown( event ) {
+    print(event.keyId);
     switch ( event.keyId ) {
       case 4294968068:
       case 119: // up
@@ -175,6 +176,8 @@ class YukaFirstPersonControls extends EventDispatcher {
         break;
       case 114: // r
         if(useWeapon) owner.weapon.reload();
+      case 32: // r
+        if(useWeapon) owner.weapon.shoot();
         break;
     }
   }

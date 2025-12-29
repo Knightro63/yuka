@@ -139,6 +139,7 @@ class _State extends State<FirstPersonNav> {
 			 await yuka.NavMeshLoader().fromAsset( 'assets/models/house/navmesh.glb', options: { 'epsilonCoplanarTest': 0.25 } ).then( ( navMesh ){
 				// visualize convex regions
 				final navMeshGroup = NavMeshHelper.createConvexRegionHelper( navMesh! );
+        navMeshGroup.visible = false;
 				threeJs.scene.add( navMeshGroup );
 				player.navMesh = navMesh;
 			} );

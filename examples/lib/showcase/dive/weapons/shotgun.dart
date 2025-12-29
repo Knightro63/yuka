@@ -14,12 +14,12 @@ class Shotgun extends Weapon {
   final _spread = Vector3();
   int bulletsPerShot = 0;
   double muzzleFireTime = 0;
-  int spread = 0;
+  double spread = 0;
   double shotReloadTime = 0;
   double endTimeShotReload = 0;
 
 	Shotgun( super.owner ) {
-		type = WEAPON_TYPES_SHOTGUN;
+		type = ItemType.shotgun;
 
 		// common weapon properties
 		roundsLeft = config['SHOTGUN']['ROUNDS_LEFT'];
@@ -69,7 +69,7 @@ class Shotgun extends Weapon {
 				(owner as Player).world.uiManager.updateAmmoStatus();
 			}
 
-			status = WEAPON_STATUS_READY;
+			status = WeaponStatus.ready;
 			endTimeReload = double.infinity;
 		}
 
@@ -84,14 +84,14 @@ class Shotgun extends Weapon {
 		if ( currentTime >= endTimeShot ) {
 			if ( roundsLeft == 0 ) {
 				if ( ammo == 0 ) {
-					status = WEAPON_STATUS_OUT_OF_AMMO;
+					status = WeaponStatus.outOfAmmo;
 				} 
         else {
-					status = WEAPON_STATUS_EMPTY;
+					status = WeaponStatus.empty;
 				}
 			} 
       else {
-				status = WEAPON_STATUS_READY;
+				status = WeaponStatus.ready;
 			}
 
 			endTimeShot = double.infinity;
@@ -103,7 +103,7 @@ class Shotgun extends Weapon {
 	/// Reloads the weapon.
   @override
 	Shotgun reload() {
-		status = WEAPON_STATUS_RELOAD;
+		status = WeaponStatus.reload;
 
 		// animation
 		if ( mixer != null) {
@@ -120,7 +120,7 @@ class Shotgun extends Weapon {
 	/// Shoots at the given position.
   @override
 	Shotgun shoot(Vector3 targetPosition ) {
-		status = WEAPON_STATUS_SHOT;
+		status = WeaponStatus.shot;
 
 		// animation
 		if ( mixer != null ) {

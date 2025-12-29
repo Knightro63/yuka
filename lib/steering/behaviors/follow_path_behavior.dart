@@ -14,6 +14,8 @@ class FollowPathBehavior extends SteeringBehavior {
 	final _arrive = ArriveBehavior();
 	final _seek = SeekBehavior();
 
+  ArriveBehavior get arrive => _arrive;
+
 	/// Constructs a new follow path behavior.
 	FollowPathBehavior([Path? path, this.nextWaypointDistance = 1 ]):super() {
 		this.path = path ?? Path();

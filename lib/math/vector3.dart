@@ -364,6 +364,14 @@ class Vector3 {
 		return this;
 	}
 
+	Vector3 fromUnknown(List array, [int offset = 0 ]) {
+		x = array[ offset + 0 ].toDouble();
+		y = array[ offset + 1 ].toDouble();
+		z = array[ offset + 2 ].toDouble();
+
+		return this;
+	}
+
 	/// Copies all values of this 3D vector to the given array.
 	List<double> toArray(List<double> array, [int offset = 0] ) {
 		array[ offset + 0 ] = x;

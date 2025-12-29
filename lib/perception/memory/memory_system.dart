@@ -12,7 +12,7 @@ class MemorySystem {
   GameEntity? owner;
   final List<MemoryRecord> records = [];
   final Map<GameEntity,MemoryRecord> recordsMap = {};
-  int memorySpan = 1;
+  double memorySpan = 1;
 
 	/// Constructs a new memory system.
 	MemorySystem([ this.owner  ]);

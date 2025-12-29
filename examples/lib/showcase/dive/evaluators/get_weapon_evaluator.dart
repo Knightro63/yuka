@@ -1,4 +1,6 @@
+import 'package:examples/showcase/dive/core/constants.dart';
 import 'package:examples/showcase/dive/core/feature.dart';
+import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:examples/showcase/dive/goals/get_item_goal.dart';
 import 'package:yuka/yuka.dart';
 
@@ -8,7 +10,7 @@ import 'package:yuka/yuka.dart';
 /// @author {@link https://github.com/Mugen87|Mugen87}
 /// @author {@link https://github.com/robp94|robp94}
 class GetWeaponEvaluator extends GoalEvaluator {
-  int? itemType;
+  ItemType? itemType;
   double tweaker = 0.15; // value used to tweak the desirability
 
 	GetWeaponEvaluator( [super.characterBias = 1, this.itemType] );
@@ -17,13 +19,13 @@ class GetWeaponEvaluator extends GoalEvaluator {
 	/// of a goal.
   @override
 	double calculateDesirability(GameEntity owner ) {
-    final dynamic temp = owner;
+    owner as Enemy;
 		double desirability = 0;
 
-		if ( temp.isItemIgnored( itemType ) == false ) {
-			final distanceScore = Feature.distanceToItem( temp, itemType! );
-			final weaponScore = Feature.individualWeaponStrength( temp, itemType );
-			final healthScore = Feature.health( temp );
+		if ( owner.isItemIgnored( itemType! ) == false ) {
+			final distanceScore = Feature.distanceToItem( owner, itemType! );
+			final weaponScore = Feature.individualWeaponStrength( owner, itemType! );
+			final healthScore = Feature.health( owner );
 
 			desirability = tweaker * ( 1 - weaponScore ) * healthScore / distanceScore;
 
@@ -36,12 +38,12 @@ class GetWeaponEvaluator extends GoalEvaluator {
 	/// Executed if this goal evaluator produces the highest desirability.
   @override
 	GetWeaponEvaluator setGoal(GameEntity owner ) {
-    final dynamic temp = owner;
-		final currentSubgoal = temp.brain.currentSubgoal();
+    owner as Enemy;
+		final currentSubgoal = owner.brain.currentSubgoal();
 
 		if (currentSubgoal is! GetItemGoal) {
-			temp.brain.clearSubgoals();
-			temp.brain.addSubgoal( GetItemGoal( temp, itemType ) );
+			owner.brain.clearSubgoals();
+			owner.brain.addSubgoal( GetItemGoal( owner, itemType ) );
 		}
 
     return this;

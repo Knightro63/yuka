@@ -9,64 +9,64 @@ final Map<String,dynamic> config = {
 	},
 	'PLAYER': {
 		'BOUNDING_RADIUS': 0.5, // meter
-		'DYING_TIME': 3, // seconds
+		'DYING_TIME': 3.0, // seconds
 		'HEAD_HEIGHT': 1.7, // meter
 		'MAX_HEALTH': 100, // health points
-		'MAX_SPEED': 6 // meter/seconds
+		'MAX_SPEED': 6.0 // meter/seconds
 	},
 	'CONTROLS': {
-		'LOOKING_SPEED': 2, // unitless
-		'BRAKING_POWER': 10, // unitless
+		'LOOKING_SPEED': 2.0, // unitless
+		'BRAKING_POWER': 10.0, // unitless
 		'HEAD_MOVEMENT': 1.2, // unitless
 		'WEAPON_MOVEMENT': 1.2, // unitless
-		'ACCELERATION': 60 // unitless
+		'ACCELERATION': 60.0 // unitless
 	},
 	'HEALTH_PACK': {
 		'HEALTH': 50, // health
-		'RESPAWN_TIME': 10, // seconds
-		'RADIUS': 1 // world units
+		'RESPAWN_TIME': 10.0, // seconds
+		'RADIUS': 1.0 // world units
 	},
 	'BOT': {
 		'MOVEMENT': {
-			'MAX_SPEED': 3, // meter/seconds
-			'DODGE_SIZE': 4 // meter
+			'MAX_SPEED': 3.0, // meter/seconds
+			'DODGE_SIZE': 4.0 // meter
 		},
 		'GOAL': {
-			'UPDATE_FREQUENCY': 5, // number per seconds
-			'ITEM_VISIBILITY_UPDATE_FREQUENCY': 1 // number per seconds
+			'UPDATE_FREQUENCY': 5.0, // number per seconds
+			'ITEM_VISIBILITY_UPDATE_FREQUENCY': 1.0 // number per seconds
 		},
 		'MEMORY': {
-			'SPAN': 20 // seconds
+			'SPAN': 20.0 // seconds
 		},
 		'NAVIGATION': {
 			'NEXT_WAYPOINT_DISTANCE': 0.5, // meter
-			'ARRIVE_DECELERATION': 2, // unitless
-			'ARRIVE_TOLERANCE': 1, // meter
+			'ARRIVE_DECELERATION': 2.0, // unitless
+			'ARRIVE_TOLERANCE': 1.0, // meter
 			'PATH_RADIUS': 0.1, // meter
-			'ONPATH_WEIGHT': 1 // unitless
+			'ONPATH_WEIGHT': 1.0 // unitless
 		},
 		'TARGET_SYSTEM': {
-			'UPDATE_FREQUENCY': 5 // number per seconds
+			'UPDATE_FREQUENCY': 5.0 // number per seconds
 		},
 		'VISION': {
-			'UPDATE_FREQUENCY': 5 // number per seconds
+			'UPDATE_FREQUENCY': 5.0 // number per seconds
 		},
 		'WEAPON': {
-			'UPDATE_FREQUENCY': 4, // number per seconds
-			'REACTION_TIME': 1, // seconds
-			'AIM_ACCURACY': 3, // meter
+			'UPDATE_FREQUENCY': 4.0, // number per seconds
+			'REACTION_TIME': 1.0, // seconds
+			'AIM_ACCURACY': 3.0, // meter
 			'CHANGE_COST': 0.5, // desirability
-			'NOISE_MAX_DISTANCE': 100 // meter
+			'NOISE_MAX_DISTANCE': 100.0 // meter
 		},
 		'BOUNDING_RADIUS': 0.5, // meter
 		'COUNT': 3, // number
 		'HEAD_HEIGHT': 1.5, // meter
 		'MAX_HEALTH': 100, // health points
-		'DYING_TIME': 3, // seconds
-		'SEARCH_FOR_ATTACKER_TIME': 3, // seconds
-		'MIN_ITEM_RANGE': 2, // meter
-		'MAX_ITEM_RANGE': 25, // meter
-		'IGNORE_ITEMS_TIMEOUT': 30 // seconds
+		'DYING_TIME': 3.0, // seconds
+		'SEARCH_FOR_ATTACKER_TIME': 3.0, // seconds
+		'MIN_ITEM_RANGE': 2.0, // meter
+		'MAX_ITEM_RANGE': 25.0, // meter
+		'IGNORE_ITEMS_TIMEOUT': 30.0 // seconds
 	},
 	'BLASTER': {
 		'ROUNDS_LEFT': 12, // number
@@ -79,8 +79,8 @@ final Map<String,dynamic> config = {
 		'EQUIP_TIME': 0.5, // seconds
 		'HIDE_TIME': 0.5, // seconds
 		'SPREAD': 0.01, // unitless
-		'RESPAWN_TIME': 10, // seconds
-		'RADIUS': 1, // world units
+		'RESPAWN_TIME': 10.0, // seconds
+		'RADIUS': 1.0, // world units
 
 	},
 	'SHOTGUN': {
@@ -92,12 +92,12 @@ final Map<String,dynamic> config = {
 		'RELOAD_TIME': 1.6, // seconds
 		'SHOT_RELOAD_TIME': 0.5, // seconds
 		'MUZZLE_TIME': 0.04, // seconds
-		'EQUIP_TIME': 1, // seconds
-		'HIDE_TIME': 1, // seconds
+		'EQUIP_TIME': 1.0, // seconds
+		'HIDE_TIME': 1.0, // seconds
 		'SPREAD': 0.05, // unitless
 		'BULLETS_PER_SHOT': 6, // number
-		'RESPAWN_TIME': 10, // seconds
-		'RADIUS': 1, // world units
+		'RESPAWN_TIME': 10.0, // seconds
+		'RADIUS': 1.0, // world units
 
 	},
 	'ASSAULT_RIFLE': {
@@ -108,31 +108,31 @@ final Map<String,dynamic> config = {
 		'SHOT_TIME': 0.2, // seconds
 		'RELOAD_TIME': 1.6, // seconds
 		'MUZZLE_TIME': 0.04, // seconds
-		'EQUIP_TIME': 1, // seconds
-		'HIDE_TIME': 1, // seconds
+		'EQUIP_TIME': 1.0, // seconds
+		'HIDE_TIME': 1.0, // seconds
 		'SPREAD': 0.01, // unitless
-		'RESPAWN_TIME': 10, // seconds
-		'RADIUS': 1, // world units
+		'RESPAWN_TIME': 10.0, // seconds
+		'RADIUS': 1.0, // world units
 
 	},
 	'BULLET': {
-		'MAX_SPEED': 400, // meter/seconds
-		'LIFETIME': 1, // seconds
+		'MAX_SPEED': 400.0, // meter/seconds
+		'LIFETIME': 1.0, // seconds
 		'DAMAGE': 20 // health points
 	},
 	'UI': {
 		'CROSSHAIRS': {
 			'HIT_TIME': 0.3, // seconds
 			'OPACITY': 0.5, // number
-			'SCALE': 40 // number
+			'SCALE': 40.0 // number
 		},
 		'DAMAGE_INDICATOR': {
 			'OPACITY': 0.5, // number
-			'SCALE': 256, // number
+			'SCALE': 256.0, // number
 			'TIME': 0.5, //seconds
 		},
 		'FRAGS': {
-			'TIME': 5, // seconds
+			'TIME': 5.0, // seconds
 		}
 	},
 	'NAVMESH': {

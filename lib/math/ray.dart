@@ -377,8 +377,8 @@ class Ray {
 
 	/// Performs a ray/BVH intersection test and stores the intersection point
 	/// to the given 3D vector. If no intersection is detected, *null* is returned.
-	Vector3 intersectBVH(BVH bvh, Vector3 result ) {
-		return bvh.root!.intersectRay( this, result )!;
+	Vector3? intersectBVH(BVH bvh, Vector3 result ) {
+		return bvh.root?.intersectRay( this, result );
 	}
 
 	/// Performs a ray/BVH intersection test. Returns either true or false if

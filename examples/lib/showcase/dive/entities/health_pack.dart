@@ -11,13 +11,13 @@ import 'package:yuka/yuka.dart';
 class HealthPack extends Item {
   int health = config['HEALTH_PACK']['HEALTH'];
   
-	HealthPack():super( HEALTH_PACK, config['HEALTH_PACK']['RESPAWN_TIME'] );
+	HealthPack():super( ItemType.healthPack, config['HEALTH_PACK']['RESPAWN_TIME'] );
 
 	/// Adds the health to the given entity.
   @override
 	HealthPack addItemToEntity(GameEntity entity ) {
-		if(entity is Player) entity.addHealth( type );
-    if(entity is Enemy) entity.addHealth( type );
+		if(entity is Player) entity.addHealth( 15 );
+    if(entity is Enemy) entity.addHealth( 15 );
 		return this;
 	}
 }

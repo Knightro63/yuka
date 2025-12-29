@@ -23,7 +23,7 @@ class FollowPathGoal extends Goal {
 
 				pathHelper.geometry.dispose();
 				pathHelper.geometry = three.BufferGeometry().setFromPoints( path );
-				pathHelper.visible = owner.world.uiManager.debugParameter.showPaths;
+				pathHelper.visible = owner.world.uiManager.debugParameter['showPaths'];
 			}
 
 			// update path and steering

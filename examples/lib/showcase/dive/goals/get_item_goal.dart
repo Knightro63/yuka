@@ -1,4 +1,5 @@
 import 'package:examples/showcase/dive/core/config.dart';
+import 'package:examples/showcase/dive/core/constants.dart';
 import 'package:examples/showcase/dive/entities/item.dart';
 import 'package:examples/showcase/dive/goals/find_path_goal.dart';
 import 'package:examples/showcase/dive/goals/follow_path_goal.dart';
@@ -11,7 +12,7 @@ import 'package:yuka/yuka.dart';
 class GetItemGoal extends CompositeGoal {
   final Map<String,dynamic> result = { 'distance': double.infinity, 'item': null };
   Item? item;
-  int? itemType;
+  ItemType? itemType;
   final regulator = Regulator( config['BOT']['GOAL']['ITEM_VISIBILITY_UPDATE_FREQUENCY'] );
 
 	GetItemGoal( super.owner, [this.itemType, this.item]);

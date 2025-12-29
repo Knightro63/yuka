@@ -1,3 +1,4 @@
+import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:examples/showcase/dive/goals/explore_goal.dart';
 import 'package:yuka/yuka.dart';
 
@@ -19,12 +20,12 @@ class ExploreEvaluator extends GoalEvaluator {
 	/// Executed if this goal evaluator produces the highest desirability.
   @override
 	ExploreEvaluator setGoal(GameEntity owner ) {
-    final dynamic temp = owner;
-		final currentSubgoal = temp.brain.currentSubgoal();
+    owner as Enemy;
+		final currentSubgoal = owner.brain.currentSubgoal();
 
 		if ( currentSubgoal is! ExploreGoal ) {
-			temp.brain.clearSubgoals();
-			temp.brain.addSubgoal( ExploreGoal( temp ) );
+			owner.brain.clearSubgoals();
+			owner.brain.addSubgoal( ExploreGoal( owner ) );
 		}
 
     return this;

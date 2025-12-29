@@ -245,13 +245,8 @@ class Quaternion {
 		return this;
 	}
 
-	/**
-	* Returns an euler angel (YXZ order) representation of this quaternion.
-	*
-	* @param {Object} euler - The resulting euler angles.
-	* @return {Object} The resulting euler angles.
-	*/
-	toEuler( euler ) {
+	/// Returns an euler angel (YXZ order) representation of this quaternion.
+	Map<String,dynamic> toEuler(Map<String,dynamic> euler ) {
 		// from 3D Math Primer for Graphics and Game Development
 		// 8.7.6 Converting a Quaternion to Euler Angles
 
@@ -261,14 +256,14 @@ class Quaternion {
 		// check for gimbal lock
 		if ( sp.abs() > 0.9999 ) {
 			// looking straight up or down
-			euler.x = math.pi * 0.5 * sp;
-			euler.y = math.atan2( x * z + w * y, 0.5 - x * x - y * y );
-			euler.z = 0;
+			euler['x'] = math.pi * 0.5 * sp;
+			euler['y'] = math.atan2( x * z + w * y, 0.5 - x * x - y * y );
+			euler['z'] = 0;
 		} 
     else { //todo test
-			euler.x = math.asin( sp );
-			euler.y = math.atan2( x * z + w * y, 0.5 - x * x - y * y );
-			euler.z = math.atan2( x * y + w * z, 0.5 - x * x - z * z );
+			euler['x'] = math.asin( sp );
+			euler['y'] = math.atan2( x * z + w * y, 0.5 - x * x - y * y );
+			euler['z'] = math.atan2( x * y + w * z, 0.5 - x * x - z * z );
 		}
 
 		return euler;

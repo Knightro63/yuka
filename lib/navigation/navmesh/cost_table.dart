@@ -7,7 +7,7 @@ import '../../math/vector3.dart';
 ///
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class CostTable {
-  final Map<int,Map> _nodeMap = {};
+  final Map<int,List> _nodeMap = {};
 
 	/// Inits the cost table for the given navigation mesh.
 	CostTable init(NavMesh navMesh ) {
@@ -45,7 +45,7 @@ class CostTable {
 	CostTable set(int from, int to, cost ) {
 		final nodeMap = _nodeMap;
 
-		if ( nodeMap.containsKey( from ) == false ) nodeMap[from] = {};
+		if ( nodeMap.containsKey( from ) == false ) nodeMap[from] = [];
 
 		final nodeCostMap = nodeMap[from];
 		nodeCostMap?[to] = cost;
@@ -53,7 +53,7 @@ class CostTable {
 	}
 
 	/// Returns the cost for the given pair of navigation nodes.
-	int get(int from, int to ) {
+	List get(int from, int to ) {
 		final nodeCostMap = _nodeMap[from];
 		return nodeCostMap?[to];
 	}

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'package:yuka/yuka.dart';
 
@@ -8,7 +9,8 @@ class SceneUtils {
 
 	/// Clones a skinned mesh. This method is necessary since three.js
 	/// does not yet support cloning of skinned meshes in the core.
-	static three.SkinnedMesh cloneWithSkinning(three.SkinnedMesh source ) {
+	static three.Object3D? cloneWithSkinning(three.Object3D? source ) {
+    if(source == null) return null; 
 		// see https://github.com/mrdoob/three.js/pull/14494
 		final cloneLookup = {};
 		final clone = source.clone();
@@ -20,19 +22,19 @@ class SceneUtils {
 		source.traverse( ( sourceMesh ) {
 			if (sourceMesh is! three.SkinnedMesh ) return;
 
-			final sourceBones = sourceMesh.skeleton?.bones;
+			//final sourceBones = sourceMesh.skeleton?.bones;
 			final clonedMesh = cloneLookup[sourceMesh];
 
 			clonedMesh.skeleton = sourceMesh.skeleton?.clone();
 
-			clonedMesh.skeleton.bones = sourceBones?.map( ( sourceBone ) {
+			// (clonedMesh.skeleton as three.Skeleton).bones = List<three.Bone>.from(sourceBones!.map( ( sourceBone ) {
 
-				if ( ! cloneLookup.containsValue( sourceBone ) ) {
-					throw( 'SceneUtils: Required bones are not descendants of the given object.' );
-				}
+			// 	if ( !cloneLookup.containsValue( sourceBone ) ) {
+			// 		throw( 'SceneUtils: Required bones are not descendants of the given object.' );
+			// 	}
 
-				return cloneLookup.get( sourceBone );
-			} );
+			// 	return cloneLookup[sourceBone];
+			// } ).toList());
 
 			clonedMesh.bind( clonedMesh.skeleton, sourceMesh.bindMatrix );
 		} );
@@ -41,28 +43,30 @@ class SceneUtils {
 	}
 
 	/// Creates a label that visualizes the UUID of a game entity.
-	static three.Sprite createUUIDLabel(String uuid ) {
-		final canvas = document.createElement( 'canvas' );
-		final context = canvas.getContext( '2d' );
+	static Future<three.Object3D> createUUIDLabel(String uuid, BuildContext context ) async{
+		final texture = await three.FlutterTexture.fromWidget(
+      context, 
+      Container(
+        width: 512,
+        height: 64,
+        color: Color(0xffee0808),
+        alignment: Alignment.center,
+        child: Text(
+          uuid,
+          textAlign: TextAlign.center,
+        ),
+      )
+    );// new CanvasTexture( canvas );
 
-		canvas.width = 512;
-		canvas.height = 64;
+    final geometry = three.PlaneGeometry();
+    final material = three.MeshBasicMaterial.fromMap( {
+      'map': texture,
+      'side': three.DoubleSide,
+      'transparent': true,
+    } );
+    final sprite = three.Mesh( geometry, material );
 
-		context.fillStyle = '#ee0808';
-		context.fillRect( 0, 0, canvas.width, canvas.height );
-
-		context.fillStyle = '#ffffff';
-		context.font = '24px Arial';
-		context.textAlign = 'center';
-		context.textBaseline = 'middle';
-		context.fillText( uuid, canvas.width / 2, canvas.height / 2 );
-
-		final texture = new CanvasTexture( canvas );
-		final material = three.SpriteMaterial.fromJson( { 'map': texture } );
-
-		final sprite = three.Sprite( material );
-
-		sprite.scale.setValues( 4, 0.5, 1 );
+		sprite.scale.setValues( 2, 0.25, 1 );
 
 		return sprite;
 
@@ -86,11 +90,33 @@ class SceneUtils {
 		lines.updateMatrix();
 
 		return lines;
+	}
+
+	static three.Mesh createHitBoxHelper( AABB hitbox ) {
+    final size = Vector3();
+    hitbox.getSize(size);
+    final geometry = three.BoxGeometry(size.x,size.y,size.z);
+
+    // 2. Calculate the center position of the bounding box
+    final center = Vector3();
+    hitbox.getCenter(center);
+
+    // Create a material (e.g., a wireframe material for visualization)
+    final material = three.MeshBasicMaterial.fromMap({
+      'color': 0xff00ff,
+      'wireframe': true // Useful for debugging the bounding box
+    });
+
+    // 4. Create the mesh and set its position to the center
+    final mesh = three.Mesh(geometry, material);
+    mesh.position.setFrom(three.Vector3().copyFromArray(center.storage));
+
+    return mesh;
 
 	}
 
 	/// Creates helper points to visualize the spawning points of the game.
-	static three.Group createSpawnPointHelper(List spawnPoints ) {
+	static three.Group createSpawnPointHelper(List<Map<String,dynamic>> spawnPoints ) {
 		final group = three.Group();
 		group.matrixAutoUpdate = false;
 
@@ -102,7 +128,7 @@ class SceneUtils {
 		for ( int i = 0, l = spawnPoints.length; i < l; i ++ ) {
 
 			final nodeMesh = three.Mesh( nodeGeometry, nodeMaterial );
-			nodeMesh.position.setFrom( spawnPoints[ i ].position );
+			nodeMesh.position.copyFromArray( spawnPoints[ i ]['position'].storage );
 
 			nodeMesh.matrixAutoUpdate = false;
 			nodeMesh.updateMatrix();

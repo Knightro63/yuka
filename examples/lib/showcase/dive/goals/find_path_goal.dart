@@ -1,3 +1,4 @@
+import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:yuka/yuka.dart';
 
 /// Sub-goal for finding the next random location
@@ -26,14 +27,14 @@ class FindPathGoal extends Goal {
 	void execute() {
 		final dynamic owner = this.owner;
 
-		if ( owner.path ) {
+		if ( owner.path != null) {
 			// when a path was found, mark this goal as completed
 			status = GoalStatus.completed;
 		}
 	}
 
-  void onPathFound( owner, path ) {
-    owner.path = path;
+  void onPathFound(Vehicle owner, List<Vector3> path ) {
+    if(owner is Enemy) owner.path = path;
   }
 }
 

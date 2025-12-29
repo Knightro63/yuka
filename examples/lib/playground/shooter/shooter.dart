@@ -21,6 +21,7 @@ class _State extends State<Shooter> {
 
   @override
   void initState() {
+    pointerLock.ensureInitialized();
     threeJs = three.ThreeJS(
       onSetupComplete: (){
         setState(() {});

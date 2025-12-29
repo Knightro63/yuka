@@ -21,14 +21,14 @@ class Level extends GameEntity {
 
 	/// Returns the intesection point if a projectile intersects with this entity.
 	/// If no intersection is detected, null is returned./
-	Vector3 checkProjectileIntersection(Ray ray, Vector3 intersectionPoint ) {
+	Vector3? checkProjectileIntersection(Ray ray, Vector3 intersectionPoint ) {
 		return ray.intersectBVH( bvh, intersectionPoint );
 	}
 
 	/// Returns the intesection point if this entity lies within the given line of sight.
 	/// If no intersection is detected, null is returned.
   @override
-	Vector3 lineOfSightTest(Ray ray, Vector3 intersectionPoint ) {
+	Vector3? lineOfSightTest(Ray ray, Vector3 intersectionPoint ) {
 		return ray.intersectBVH( bvh, intersectionPoint );
 	}
 }

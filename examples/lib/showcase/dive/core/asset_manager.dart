@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:examples/showcase/dive/etc/animation_loader.dart';
 import 'package:three_js/three_js.dart' as three;
+import 'package:yuka/navigation/navmesh/file_loader.dart';
 import 'package:yuka/yuka.dart';
+import 'dart:math' as math;
 
 /// Class for representing the global asset manager. It is responsible
 /// for loading and parsing all assets from the backend and provide
@@ -12,11 +16,9 @@ class AssetManager {
   Map<String,dynamic> models = {};
   Map<String,dynamic> textures = {};
 
-  final loadingManager = three.LoadingManager();
-
-  late final animationLoader = three.AnimationLoader( loadingManager );
-  late final textureLoader = three.TextureLoader( manager: loadingManager );
-  late final gltfLoader = three.GLTFLoader( manager: loadingManager );
+  late final animationLoader = AnimationLoader();
+  late final textureLoader = three.TextureLoader();
+  late final gltfLoader = three.GLTFLoader()..setPath('assets/showcase/models/');
   final navMeshLoader = NavMeshLoader();
 
   NavMesh? navMesh;
@@ -25,401 +27,269 @@ class AssetManager {
 	/// Initializes the asset manager. All assets are prepared so they
 	/// can be used by the game.
 	Future<void> init() async{
-		_loadAnimations();
-		_loadAudios();
-		_loadConfigs();
-		_loadModels();
-		_loadTextures();
-		_loadNavMesh();
+		await _loadAnimations();
+		await _loadConfigs();
+		await _loadModels();
+		await _loadNavMesh();
 	}
 
-	/**
-	* Loads all external animations from the backend.
-	*
-	* @return {AssetManager} A reference to this asset manager.
-	*/
-	_loadAnimations() {
+	/// Loads all external animations from the backend.
+	Future<AssetManager> _loadAnimations() async{
 		final animationLoader = this.animationLoader;
 
 		// player
-		animationLoader.load( './animations/player.json', ( clips ){
-			for ( final clip in clips ) {
+		await animationLoader.fromAsset( 'assets/showcase/animations/player.json').then(( clips ){
+			for ( final clip in clips! ) {
 				animations[clip.name] = clip;
 			}
 		} );
 
 		// blaster
-		animationLoader.load( './animations/blaster.json', ( clips ){
-			for ( final clip in clips ) {
-				this.animations[clip.name] = clip;
+		await animationLoader.fromAsset( 'assets/showcase/animations/blaster.json').then(( clips ){
+			for ( final clip in clips! ) {
+				animations[clip.name] = clip;
 			}
 		} );
 
 		// shotgun
-
-		animationLoader.load( './animations/shotgun.json', ( clips ) => {
-			for ( final clip in clips ) {
-				this.animations[clip.name] = clip;
+		await animationLoader.fromAsset( 'assets/showcase/animations/shotgun.json').then(( clips ){
+			for ( final clip in clips! ) {
+			  animations[clip.name] = clip;
 			}
 		} );
 
-		// assault rifle
-
-		animationLoader.load( './animations/assaultRifle.json', ( clips ) => {
-			for ( final clip in clips ) {
-				this.animations[clip.name] = clip;
+		// assaultRifle
+		await animationLoader.fromAsset( 'assets/showcase/animations/assaultRifle.json').then(( clips ){
+			for ( final clip in clips! ) {
+				animations[clip.name] = clip;
 			}
 		} );
 
 		return this;
 	}
 
-	/**
-	* Loads all configurations from the backend.
-	*
-	* @return {AssetManager} A reference to this asset manager.
-	*/
-	_loadConfigs() {
-
-		final loadingManager = this.loadingManager;
+	/// Loads all configurations from the backend.
+	Future<AssetManager> _loadConfigs() async{
 		final configs = this.configs;
-
-		// level config
-
-		loadingManager.itemStart( 'levelConfig' );
-
-		fetch( './config/level.json' )
-			.then( response => {
-
-				return response.json();
-
-			} )
-			.then( json => {
-
-				configs['level] =, jn );
-
-				loadingManager.itemEnd( 'levelConfig' );
-
-			} );
-
+    await YukaFileLoader().fromAsset('assets/showcase/config/level.json').then((json){
+			configs['level'] = jsonDecode(String.fromCharCodes(json!.data));
+    });
 		return this;
-
 	}
 
-	/**
-	* Loads all models from the backend.
-	*
-	* @return {AssetManager} A reference to this asset manager.
-	*/
-	_loadModels() {
-
+	/// Loads all models from the backend.
+	Future<AssetManager> _loadModels() async{
 		final gltfLoader = this.gltfLoader;
 		final textureLoader = this.textureLoader;
 		final models = this.models;
 		final animations = this.animations;
 
 		// shadow for soldiers
+		final shadowTexture = await textureLoader.fromAsset( 'assets/showcase/textures/shadow.png' );
+		final planeGeometry = three.PlaneGeometry();
+		final planeMaterial = three.MeshBasicMaterial.fromMap( { 'map': shadowTexture, 'transparent': true, 'opacity': 0.4 } );
 
-		final shadowTexture = textureLoader.load( './textures/shadow.png' );
-		final planeGeometry = new PlaneBufferGeometry();
-		final planeMaterial = new MeshBasicMaterial( { map: shadowTexture, transparent: true, opacity: 0.4 } );
-
-		final shadowPlane = new Mesh( planeGeometry, planeMaterial );
+		final shadowPlane = three.Mesh( planeGeometry, planeMaterial );
 		shadowPlane.position.setValues(0.05, 0 );
-		shadowPlane.rotation.setValues(-math.pi * 0.5, 0, 0 );
-		shadowPlane.scale.multiplyScalar( 2 );
+		shadowPlane.rotation.set(-math.pi * 0.5, 0, 0 );
+		shadowPlane.scale.scale( 2 );
 		shadowPlane.matrixAutoUpdate = false;
 		shadowPlane.updateMatrix();
 
 		// soldier
-
-		gltfLoader.load( './models/soldier.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
-			renderComponent.animations = gltf.animations;
-
+		await  gltfLoader.fromAsset( 'soldier.glb').then(( gltf ){
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
+			renderComponent.traverse( ( object ){
 
-				if ( object.isMesh ) {
-
-					object.material.side = DoubleSide;
+				if ( object is three.Mesh ) {
+					object.material?.side = three.DoubleSide;
 					object.matrixAutoUpdate = false;
 					object.updateMatrix();
-
 				}
-
 			} );
 
 			renderComponent.add( shadowPlane );
 
-			models['soldier] =, renderCompont );
+			models['soldier'] = renderComponent;
 
-			for ( let animation of gltf.animations ) {
-
+			for ( final animation in gltf.animations! ) {
 				animations[animation.name] = animation;
-
 			}
-
 		} );
 
 		// level
-
-		gltfLoader.load( './models/level.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'level.glb').then (( gltf ) async{
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ) {
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
 			// add lightmap manually since glTF does not support this type of texture so far
-
 			final mesh = renderComponent.getObjectByName( 'level' );
-			mesh.material.lightMap = textureLoader.load( './textures/lightmap.png' );
-			mesh.material.lightMap.flipY = false;
-			mesh.material.map.anisotropy = 4;
+      mesh?.material?.map = await textureLoader.fromAsset( 'assets/showcase/textures/levelTexture.png' );
+			// mesh?.material?.lightMap = await textureLoader.fromAsset( 'assets/showcase/textures/lightmap.png' );
+			// mesh?.material?.lightMap?.flipY = false;
+			mesh?.material?.map?.anisotropy = 4;
+      three.ColorManagement.legacyMode = false;
 
-			models['level] =, renderCompont );
-
+			models['level'] = renderComponent;
 		} );
 
 		// blaster, high poly
-
-		gltfLoader.load( './models/blaster_high.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'blaster_high.glb').then(( gltf ) {
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ) {
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
-			models['blaster_high] =, renderCompont );
-
+			models['blaster_high'] = renderComponent;
 		} );
 
+		// await three.GLTFLoader().fromAsset( 'assets/models/gun.glb').then(( gltf ) async{
+		// 	final weaponMesh = gltf?.scene.getObjectByName( 'BaseMesh' )?.children[ 0 ];
+		// 	weaponMesh?.geometry?.scale( 0.1, 0.1, 0.1 );
+		// 	weaponMesh?.geometry?.rotateX( math.pi * - 0.5 );
+		// 	weaponMesh?.geometry?.rotateY( math.pi * 0.5 );
+    //   weaponMesh?.geometry?.translate(0.3, -0.3, -1);
+    //   weaponMesh?.matrixAutoUpdate = false;
+
+		// 	models['blaster_high'] = weaponMesh;
+		// } );
+
 		// blaster, low poly
-
-		gltfLoader.load( './models/blaster_low.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'blaster_low.glb').then(( gltf ){
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ) {
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
-			models['blaster_low] =, renderCompont );
-
+			models['blaster_low'] = renderComponent;
 		} );
 
 		// shotgun, high poly
-
-		gltfLoader.load( './models/shotgun_high.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'shotgun_high.glb').then(( gltf ) {
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ){
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
-			models['shotgun_high] =, renderCompont );
-
+			models['shotgun_high'] = renderComponent;
 		} );
 
 		// shotgun, low poly
-
-		gltfLoader.load( './models/shotgun_low.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'shotgun_low.glb').then(( gltf ) {
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ) {
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
-			models['shotgun_low] =, renderCompont );
-
+			models['shotgun_low'] = renderComponent;
 		} );
 
 		// assault rifle, high poly
-
-		gltfLoader.load( './models/assaultRifle_high.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'assaultRifle_high.glb').then(( gltf ) {
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ) {
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
-			models['assaultRifle_high] =, renderCompont );
-
+			models['assaultRifle_high'] = renderComponent;
 		} );
 
 		// assault rifle, low poly
-
-		gltfLoader.load( './models/assaultRifle_low.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'assaultRifle_low.glb').then(( gltf ){
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ) {
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
-			models['assaultRifle_low] =, renderCompont );
-
+			models['assaultRifle_low'] = renderComponent;
 		} );
 
 		// health pack
-
-		gltfLoader.load( './models/healthPack.glb', ( gltf ) => {
-
-			final renderComponent = gltf.scene;
+		await gltfLoader.fromAsset( 'healthPack.glb').then(( gltf ){
+			final renderComponent = gltf!.scene;
 			renderComponent.matrixAutoUpdate = false;
 			renderComponent.updateMatrix();
 
-			renderComponent.traverse( ( object ) => {
-
+			renderComponent.traverse( ( object ) {
 				object.matrixAutoUpdate = false;
 				object.updateMatrix();
-
 			} );
 
-			models['healthPack] =, renderCompont );
-
+			models['healthPack'] = renderComponent;
 		} );
 
 		// muzzle sprite
 
-		final muzzleTexture = textureLoader.load( './textures/muzzle.png' );
-		muzzleTexture.matrixAutoUpdate = false;
+		final muzzleTexture = await textureLoader.fromAsset( 'assets/showcase/textures/muzzle.png' );
+		muzzleTexture?.matrixAutoUpdate = false;
 
-		final muzzleMaterial = new SpriteMaterial( { map: muzzleTexture } );
-		final muzzle = new Sprite( muzzleMaterial );
+		final muzzleMaterial = three.SpriteMaterial.fromMap( { 'map': muzzleTexture } );
+		final muzzle = three.Sprite( muzzleMaterial );
 		muzzle.matrixAutoUpdate = false;
 		muzzle.visible = false;
 
-		models['muzzle] =, muze );
+		models['muzzle'] = muzzle;
 
 		// bullet line
 
-		final bulletLineGeometry = new BufferGeometry();
-		final bulletLineMaterial = new LineBasicMaterial( { color: 0xfbf8e6 } );
+		final bulletLineGeometry = three.BufferGeometry();
+		final bulletLineMaterial = three.LineBasicMaterial.fromMap( { 'color': 0xfbf8e6 } );
 
-		bulletLineGeometry.setFromPoints( [ new Vector3(), new Vector3( 0, 0, - 1 ) ] );
+		bulletLineGeometry.setFromPoints( [ Vector3(), Vector3( 0, 0, - 1 ) ] );
 
-		final bulletLine = new LineSegments( bulletLineGeometry, bulletLineMaterial );
+		final bulletLine = three.LineSegments( bulletLineGeometry, bulletLineMaterial );
 		bulletLine.matrixAutoUpdate = false;
 
-		models['bulletLine] =, bulletLe );
+		models['bulletLine'] = bulletLine;
 
+    return this;
 	}
 
-	/**
-	* Loads all textures from the backend.
-	*
-	* @return {AssetManager} A reference to this asset manager.
-	*/
-	_loadTextures() {
-
-		final textureLoader = this.textureLoader;
-
-		let texture = textureLoader.load( './textures/crosshairs.png' );
-		texture.matrixAutoUpdate = false;
-		this.textures['crosshairs] =, texte );
-
-		texture = textureLoader.load( './textures/damageIndicatorFront.png' );
-		texture.matrixAutoUpdate = false;
-		this.textures['damageIndicatorFront] =, texte );
-
-		texture = textureLoader.load( './textures/damageIndicatorRight.png' );
-		texture.matrixAutoUpdate = false;
-		this.textures['damageIndicatorRight] =, texte );
-
-		texture = textureLoader.load( './textures/damageIndicatorLeft.png' );
-		texture.matrixAutoUpdate = false;
-		this.textures['damageIndicatorLeft] =, texte );
-
-		texture = textureLoader.load( './textures/damageIndicatorBack.png' );
-		texture.matrixAutoUpdate = false;
-		this.textures['damageIndicatorBack] =, texte );
-
-		return this;
-
-	}
-
-	/**
-	* Loads the navigation mesh from the backend.
-	*
-	* @return {AssetManager} A reference to this asset manager.
-	*/
-	_loadNavMesh() {
-
+	/// Loads the navigation mesh from the backend.
+	Future<AssetManager> _loadNavMesh() async{
 		final navMeshLoader = this.navMeshLoader;
-		final loadingManager = this.loadingManager;
 
-		loadingManager.itemStart( 'navmesh' );
-
-		navMeshLoader.load( './navmeshes/navmesh.glb' ).then( ( navMesh ) => {
-
+		await navMeshLoader.fromAsset( 'assets/showcase/nav/navmesh.glb' ).then( ( navMesh ) {
 			this.navMesh = navMesh;
-
-			loadingManager.itemEnd( 'navmesh' );
-
 		} );
 
 		//
-
-		loadingManager.itemStart( 'costTable' );
-
-		fetch( './navmeshes/costTable.json' )
-			.then( response => {
-
-				return response.json();
-
-			} )
-			.then( json => {
-
-				this.costTable = new CostTable().fromJSON( json );
-
-				loadingManager.itemEnd( 'costTable' );
-
-			} );
+    await YukaFileLoader().fromAsset('assets/showcase/nav/costTable.json').then((json){
+			costTable = CostTable().fromJSON( jsonDecode(String.fromCharCodes(json!.data)));
+    });
 
 		return this;
 	}

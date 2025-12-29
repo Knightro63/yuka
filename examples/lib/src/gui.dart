@@ -386,6 +386,18 @@ class Gui{
     return _folders.last;
   }
 
+  void open(){
+    for(final f in _folders){
+      f.open();
+    }
+  }
+
+  void close(){
+    for(final f in _folders){
+      f.close();
+    }
+  }
+
   Widget render([BuildContext? context]){
     List<Widget> widgets = [];
     bool first = true;

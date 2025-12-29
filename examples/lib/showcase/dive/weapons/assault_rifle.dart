@@ -15,7 +15,7 @@ class AssaultRifle extends Weapon {
   double muzzleFireTime = config['ASSAULT_RIFLE']['MUZZLE_TIME'];
 
 	AssaultRifle( super.owner ) {
-    type = WEAPON_TYPES_ASSAULT_RIFLE;
+    type = ItemType.assaultRifle;
     roundsLeft = config['ASSAULT_RIFLE']['ROUNDS_LEFT'];
     roundsPerClip = config['ASSAULT_RIFLE']['ROUNDS_PER_CLIP'];
     ammo = config['ASSAULT_RIFLE']['AMMO'];
@@ -51,7 +51,7 @@ class AssaultRifle extends Weapon {
 				(owner as Player).world.uiManager.updateAmmoStatus();
 			}
 
-			status = WEAPON_STATUS_READY;
+			status = WeaponStatus.ready;
 			endTimeReload = double.infinity;
 		}
 
@@ -66,14 +66,14 @@ class AssaultRifle extends Weapon {
 		if ( currentTime >= endTimeShot ) {
 			if ( roundsLeft == 0 ) {
 				if ( ammo == 0 ) {
-					status = WEAPON_STATUS_OUT_OF_AMMO;
+					status = WeaponStatus.outOfAmmo;
 				} 
         else {
-					status = WEAPON_STATUS_EMPTY;
+					status = WeaponStatus.empty;
 				}
 			} 
       else {
-				status = WEAPON_STATUS_READY;
+				status = WeaponStatus.ready;
 			}
 
 			endTimeShot = double.infinity;
@@ -85,7 +85,7 @@ class AssaultRifle extends Weapon {
 	/// Reloads the weapon.
   @override
 	AssaultRifle reload() {
-		status = WEAPON_STATUS_RELOAD;
+		status = WeaponStatus.reload;
 
 		// animation
 		if ( mixer != null) {
@@ -101,7 +101,7 @@ class AssaultRifle extends Weapon {
 	/// Shoots at the given position.
   @override
 	AssaultRifle shoot(Vector3 targetPosition ) {
-		status = WEAPON_STATUS_SHOT;
+		status = WeaponStatus.shot;
 
 		// animation
 		if ( mixer != null) {
@@ -166,10 +166,10 @@ class AssaultRifle extends Weapon {
 		final mixer = three.AnimationMixer( renderComponent );
 		final animations = <String,three.AnimationAction?>{};
 
-		final shotClip = assetManager.animations.get( 'assaultRifle_shot' );
-		final reloadClip = assetManager.animations.get( 'assaultRifle_reload' );
-		final hideClip = assetManager.animations.get( 'assaultRifle_hide' );
-		final equipClip = assetManager.animations.get( 'assaultRifle_equip' );
+		final shotClip = assetManager.animations['assaultRifle_shot'];
+		final reloadClip = assetManager.animations['assaultRifle_reload'];
+		final hideClip = assetManager.animations['assaultRifle_hide'];
+		final equipClip = assetManager.animations['assaultRifle_equip'];
 
 		final shotAction = mixer.clipAction( shotClip );
 		shotAction?.loop = three.LoopOnce;

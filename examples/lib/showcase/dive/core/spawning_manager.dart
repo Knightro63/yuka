@@ -1,6 +1,7 @@
 
 import 'package:examples/showcase/dive/core/config.dart';
 import 'package:examples/showcase/dive/core/constants.dart';
+import 'package:examples/showcase/dive/core/world.dart';
 import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:examples/showcase/dive/entities/health_pack.dart';
 import 'package:examples/showcase/dive/entities/item.dart';
@@ -16,7 +17,7 @@ import 'package:yuka/yuka.dart';
 /// @author {@link https://github.com/robp94|robp94}
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class SpawningManager {
-  dynamic world;
+  World world;
   List<Map<String,dynamic>> spawningPoints = [];
   Map<dynamic,dynamic> itemTriggerMap = {};
 
@@ -62,24 +63,21 @@ class SpawningManager {
 	}
 
 	/// Returns an array with items of the given type.
-	List<dynamic>? getItemList(int type ) {
-		List<dynamic>? itemList;
+	List<Item>? getItemList(ItemType type ) {
+		List<Item>? itemList;
 
 		switch ( type ) {
-			case HEALTH_PACK:
+			case ItemType.healthPack:
 				itemList = healthPacks;
 				break;
-			case WEAPON_TYPES_BLASTER:
+			case ItemType.blaster:
 				itemList = blasters;
 				break;
-			case WEAPON_TYPES_SHOTGUN:
+			case ItemType.shotgun:
 				itemList = shotguns;
 				break;
-			case WEAPON_TYPES_ASSAULT_RIFLE:
+			case ItemType.assaultRifle:
 				itemList = assaultRilfles;
-				break;
-			default:
-				yukaConsole.error( 'DIVE.SpawningManager: Invalid item type: $type' );
 				break;
 		}
 
@@ -88,18 +86,19 @@ class SpawningManager {
 
 	/// Respawns the given competitor.
 	SpawningManager respawnCompetitor(GameEntity competitor ) {
-		final spawnPoint = getSpawnPoint( competitor as Enemy)!;
+		final spawnPoint = getSpawnPoint( competitor )!;
 
 		competitor.position.copy( spawnPoint['position'] );
 		competitor.rotation.fromEuler( spawnPoint['rotation']['x'], spawnPoint['rotation']['y']!, spawnPoint['rotation']['z']! );
 
-		if ( competitor is Player ) (competitor as Player).head.rotation.set( 0, 0, 0, 1 );
+		if ( competitor is Player ) competitor.head.rotation.set( 0, 0, 0, 1 );
+    if ( competitor is Enemy ) competitor.head.rotation.set( 0, 0, 0, 1 );
 
 		return this;
 	}
 
 	/// Gets a suitable respawn point for the given enemy.
-	Map<String,dynamic>? getSpawnPoint(Enemy enemy ) {
+	Map<String,dynamic>? getSpawnPoint( enemy ) {
 		final spawningPoints = this.spawningPoints;
 		final competitors = world.competitors;
 
@@ -143,11 +142,11 @@ class SpawningManager {
 
 	/// Inits the spawning points from the parsed configuration file.
 	SpawningManager initSpawningPoints() {
-		final levelConfig = world.assetManager.configs.get( 'level' );
+		final levelConfig = world.assetManager?.configs['level'];
 
-		for ( final spawningPoint in levelConfig.competitorSpawningPoints ) {
-			final position = spawningPoint.position;
-			final rotation = spawningPoint.rotation;
+		for ( final spawningPoint in levelConfig['competitorSpawningPoints'] ) {
+			final List<double> position = List<double>.from(spawningPoint['position'].map((i) => i.toDouble()).toList());//List<double>.from(spawningPoint['position']);
+			final List<double> rotation = List<double>.from(spawningPoint['rotation'].map((i) => i.toDouble()).toList());//List<double>.from(spawningPoint['rotation']);
 
 			spawningPoints.add( <String,dynamic>{
 				'position': Vector3().fromArray( position ),
@@ -156,16 +155,16 @@ class SpawningManager {
 
 		}
 
-		for ( final spawningPoint in levelConfig.healthPackSpawningPoints ) {
-			healthPackSpawningPoints.add( Vector3().fromArray( spawningPoint ) );
+		for ( final spawningPoint in levelConfig['healthPackSpawningPoints'] ) {
+			healthPackSpawningPoints.add( Vector3().fromUnknown( spawningPoint ) );
 		}
 
-		for ( final spawningPoint in levelConfig.shotgunSpawningPoints ) {
-			shotgunSpawningPoints.add( Vector3().fromArray( spawningPoint ) );
+		for ( final spawningPoint in levelConfig['shotgunSpawningPoints'] ) {
+			shotgunSpawningPoints.add( Vector3().fromUnknown( spawningPoint ) );
 		}
 
-		for ( final spawningPoint in levelConfig.assaultRilflesSpawningPoints ) {
-			assaultRilflesSpawningPoints.add( Vector3().fromArray( spawningPoint ) );
+		for ( final spawningPoint in levelConfig['assaultRilflesSpawningPoints'] ) {
+			assaultRilflesSpawningPoints.add( Vector3().fromUnknown( spawningPoint ) );
 		}
 
 		return this;
@@ -173,22 +172,22 @@ class SpawningManager {
 
 	/// Inits the collectable health packs.
 	SpawningManager initHealthPacks() {
-		final world = this.world;
+		final World world = this.world;
 
 		for ( final spawningPoint in healthPackSpawningPoints ) {
 			// health pack entity
 			final healthPack = HealthPack();
 			healthPack.position.copy( spawningPoint );
 
-			final renderComponent = world.assetManager.models.get( 'healthPack' ).clone();
-			renderComponent.position.copy( healthPack.position );
+			final three.Object3D? renderComponent = world.assetManager?.models['healthPack']?.clone();
+			renderComponent?.position.copyFromArray( healthPack.position.storage );
 			healthPack.setRenderComponent( renderComponent, sync );
 
 			healthPacks.add( healthPack );
 			world.add( healthPack );
 
 			// navigation
-			healthPack.currentRegion = world.navMesh.getRegionForPoint( healthPack.position, 1 );
+			healthPack.currentRegion = world.navMesh?.getRegionForPoint( healthPack.position, 1 );
 
 			// trigger
 			createTrigger( healthPack, config['HEALTH_PACK']['RADIUS'] );
@@ -205,18 +204,18 @@ class SpawningManager {
 
 		for ( final spawningPoint in blasterSpawningPoints ) {
 			// blaster item
-			final blasterItem = WeaponItem( WEAPON_TYPES_BLASTER, config['BLASTER']['RESPAWN_TIME'], config['BLASTER']['AMMO'] );
+			final blasterItem = WeaponItem( ItemType.blaster, config['BLASTER']['RESPAWN_TIME'], config['BLASTER']['AMMO'] );
 			blasterItem.position.copy( spawningPoint );
 
-			final renderComponent = assetManager.models.get( 'blaster_low' ).clone();
-			renderComponent.position.copy( blasterItem.position );
+			final renderComponent = assetManager?.models.get( 'blaster_low' ).clone();
+			renderComponent.position.copyFromArray( blasterItem.position.storage );
 			blasterItem.setRenderComponent( renderComponent, sync );
 
 			blasters.add( blasterItem );
 			world.add( blasterItem );
 
 			// navigation
-			blasterItem.currentRegion = world.navMesh.getRegionForPoint( blasterItem.position, 1 );
+			blasterItem.currentRegion = world.navMesh?.getRegionForPoint( blasterItem.position, 1 );
 
 			// trigger
 			createTrigger( blasterItem, config['BLASTER']['RADIUS'] );
@@ -225,18 +224,18 @@ class SpawningManager {
 		for ( final spawningPoint in shotgunSpawningPoints ) {
 
 			// shotgun item
-			final shotgunItem = WeaponItem( WEAPON_TYPES_SHOTGUN, config['SHOTGUN']['RESPAWN_TIME'], config['SHOTGUN']['AMMO'] );
+			final shotgunItem = WeaponItem( ItemType.shotgun, config['SHOTGUN']['RESPAWN_TIME'], config['SHOTGUN']['AMMO'] );
 			shotgunItem.position.copy( spawningPoint );
 
-			final renderComponent = assetManager.models.get( 'shotgun_low' ).clone();
-			renderComponent.position.copy( shotgunItem.position );
+			final three.Object3D? renderComponent = assetManager?.models['shotgun_low']?.clone();
+			renderComponent?.position.copyFromArray( shotgunItem.position.storage );
 			shotgunItem.setRenderComponent( renderComponent, sync );
 
 			shotguns.add( shotgunItem );
 			world.add( shotgunItem );
 
 			// navigation
-			shotgunItem.currentRegion = world.navMesh.getRegionForPoint( shotgunItem.position, 1 );
+			shotgunItem.currentRegion = world.navMesh?.getRegionForPoint( shotgunItem.position, 1 );
 
 			// trigger
 			createTrigger( shotgunItem, config['SHOTGUN']['RADIUS'] );
@@ -246,18 +245,18 @@ class SpawningManager {
 
 			// assault rifle item
 
-			final assaultRilfleItem = WeaponItem( WEAPON_TYPES_ASSAULT_RIFLE, config['ASSAULT_RIFLE']['RESPAWN_TIME'], config['ASSAULT_RIFLE']['AMMO'] );
+			final assaultRilfleItem = WeaponItem( ItemType.assaultRifle, config['ASSAULT_RIFLE']['RESPAWN_TIME'], config['ASSAULT_RIFLE']['AMMO'] );
 			assaultRilfleItem.position.copy( spawningPoint );
 
-			final renderComponent = assetManager.models.get( 'assaultRifle_low' ).clone();
-			renderComponent.position.copy( assaultRilfleItem.position );
+			final three.Object3D? renderComponent = assetManager?.models['assaultRifle_low']?.clone();
+			renderComponent?.position.copyFromArray( assaultRilfleItem.position.storage );
 			assaultRilfleItem.setRenderComponent( renderComponent, sync );
 
 			assaultRilfles.add( assaultRilfleItem );
 			this.world.add( assaultRilfleItem );
 
 			// navigation
-			assaultRilfleItem.currentRegion = world.navMesh.getRegionForPoint( assaultRilfleItem.position, 1 );
+			assaultRilfleItem.currentRegion = world.navMesh?.getRegionForPoint( assaultRilfleItem.position, 1 );
 
 			// trigger
 			createTrigger( assaultRilfleItem, config['ASSAULT_RIFLE']['RADIUS'] );
@@ -281,7 +280,7 @@ class SpawningManager {
 			final triggerHelper = SceneUtils.createTriggerHelper( trigger );
 			trigger.setRenderComponent( triggerHelper, sync );
 
-			world.helpers.itemHelpers.push( triggerHelper );
+			world.helpers['itemHelpers'].add( triggerHelper );
 			world.scene.add( triggerHelper );
 		}
 
@@ -291,7 +290,7 @@ class SpawningManager {
 	/// Respawns the given item.
 	SpawningManager _respawnItem( item ) {
 		// reactivate trigger
-		final trigger = itemTriggerMap.get( item );
+		final trigger = itemTriggerMap[item];
 		trigger.active = true;
 
 		// reactivate item

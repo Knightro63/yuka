@@ -22,6 +22,7 @@ class _State extends State<HideSeek> {
 
   @override
   void initState() {
+    pointerLock.ensureInitialized();
     threeJs = three.ThreeJS(
       onSetupComplete: (){
         setState(() {});

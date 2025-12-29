@@ -8,7 +8,7 @@ import 'package:yuka/yuka.dart';
 /// @author {@link https://github.com/Mugen87|Mugen87}
 abstract class Weapon extends GameEntity {
   GameEntity owner;
-  int? type;
+  ItemType? type;
 
   int roundsLeft = 0;
   int roundsPerClip = 0;
@@ -31,11 +31,11 @@ abstract class Weapon extends GameEntity {
   three.AnimationMixer? mixer;
   Map<String,three.AnimationAction?>? animations;
 
-	int status = WEAPON_STATUS_UNREADY;
-	int previousState = WEAPON_STATUS_READY;
+	WeaponStatus status = WeaponStatus.unready;
+	WeaponStatus previousState = WeaponStatus.ready;
 
   FuzzyModule? fuzzyModule;
-  three.Sprite? muzzle;
+  three.Object3D? muzzle;
 
 	Weapon(this.owner ):super() {
 		canActivateTrigger = false;
@@ -59,7 +59,7 @@ abstract class Weapon extends GameEntity {
 
 	/// Equips the weapon.
 	Weapon equip() {
-		status = WEAPON_STATUS_EQUIP;
+		status = WeaponStatus.equip;
 		endTimeEquip = currentTime + equipTime;
 
 		if ( mixer != null) {
@@ -81,7 +81,7 @@ abstract class Weapon extends GameEntity {
 	/// Hides the weapon.
 	Weapon hide() {
 		previousState = status;
-		status = WEAPON_STATUS_HIDE;
+		status = WeaponStatus.hide;
 		endTimeHide = currentTime + hideTime;
 
 		if ( mixer != null) {
@@ -110,7 +110,7 @@ abstract class Weapon extends GameEntity {
 		}
 
 		if ( currentTime >= endTimeHide ) {
-			status = WEAPON_STATUS_UNREADY;
+			status = WeaponStatus.unready;
 			endTimeHide = double.infinity;
 		}
 

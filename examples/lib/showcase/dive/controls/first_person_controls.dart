@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:examples/showcase/dive/core/config.dart';
 import 'package:examples/showcase/dive/core/constants.dart';
+import 'package:examples/showcase/dive/entities/player.dart';
 import 'package:yuka/yuka.dart';
 import 'package:three_js/three_js.dart' as three;
 
@@ -19,7 +20,7 @@ class FirstPersonControls extends EventDispatcher {
   double elapsed = 0;
 
   final euler = <String,double>{ 'x': 0, 'y': 0, 'z': 0 };
-  dynamic owner;
+  Player owner;
 
   bool active = true;
 
@@ -39,11 +40,9 @@ class FirstPersonControls extends EventDispatcher {
     'mouseDown': false
   };
 
-  late final three.ThreeJS threeJs;
+  final three.ThreeJS threeJs;
 
-	FirstPersonControls( this.owner ):super(){
-    threeJs = owner.threeJs;
-  }
+	FirstPersonControls( this.owner, this.threeJs ):super();
 
 	/// Connects the event listeners and activates the controls.
 	FirstPersonControls connect() {
@@ -81,7 +80,7 @@ class FirstPersonControls extends EventDispatcher {
 	}
 
 	/// Resets the controls (e.g. after a respawn).
-	FirstPersonControls reset(double delta) {
+	FirstPersonControls reset([double? delta]) {
 		active = true;
 
 		movementX = 0;
@@ -140,8 +139,8 @@ class FirstPersonControls extends EventDispatcher {
 		direction.x = _getNumber( input['left']! ) - _getNumber( input['right']! );
 		direction.normalize();
 
-		if ( input['forward']! || input['backward']!) velocity.z -= direction.z * config['CONTROLS']['ACCELERATION * delta'];
-		if ( input['left']! || input['right']!) velocity.x -= direction.x * config['CONTROLS']['ACCELERATION * delta'];
+		if ( input['forward']! || input['backward']!) velocity.z -= direction.z * config['CONTROLS']['ACCELERATION']  * delta;
+		if ( input['left']! || input['right']!) velocity.x -= direction.x * config['CONTROLS']['ACCELERATION'] * delta;
 
 		owner.velocity.copy( velocity ).applyRotation( owner.rotation );
 
@@ -192,14 +191,14 @@ class FirstPersonControls extends EventDispatcher {
 
   // event listeners
   void onMouseDown( event ) {
-    if ( active && event.which == 1 ) {
+    if ( active && event.button == 0 ) {
       input['mouseDown'] = true;
       owner.shoot();
     }
   }
 
   void onMouseUp( event ) {
-    if ( active && event.which == 1 ) {
+    if ( active && event.button == 0 ) {
       input['mouseDown'] = false;
     }
   }
@@ -209,8 +208,8 @@ class FirstPersonControls extends EventDispatcher {
       movementX -= event.movementX * 0.001 * lookingSpeed;
       movementY -= event.movementY * 0.001 * lookingSpeed;
       movementY = math.max( - pi05, math.min( pi05, movementY ) );
-      owner.rotation.fromEuler( 0, movementX, 0 ); // yaw
-      owner.head.rotation.fromEuler( movementY, 0, 0 ); // pitch
+      owner.rotation.fromEuler( 0.0, movementX, 0.0 ); // yaw
+      owner.head.rotation.fromEuler( movementY, 0.0, 0.0 ); // pitch
     }
   }
 
@@ -233,20 +232,20 @@ class FirstPersonControls extends EventDispatcher {
         input['right'] = true;
         break;
       case 114: // r
-        owner.weapon.reload();
+        owner.weaponSystem.reload();
         break;
 
 			case 49: // 1
-				owner.changeWeapon( WEAPON_TYPES_BLASTER );
+				owner.changeWeapon( ItemType.blaster );
 				break;
 			case 50: // 2
-				if ( owner.hasWeapon( WEAPON_TYPES_SHOTGUN ) ) {
-					owner.changeWeapon( WEAPON_TYPES_SHOTGUN );
+				if ( owner.hasWeapon( ItemType.shotgun ) ) {
+					owner.changeWeapon( ItemType.shotgun );
 				}
 				break;
 			case 51: // 3
-				if ( owner.hasWeapon( WEAPON_TYPES_ASSAULT_RIFLE ) ) {
-					owner.changeWeapon( WEAPON_TYPES_ASSAULT_RIFLE );
+				if ( owner.hasWeapon( ItemType.assaultRifle ) ) {
+					owner.changeWeapon( ItemType.assaultRifle );
 				}
 				break;
     }

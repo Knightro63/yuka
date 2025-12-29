@@ -1,4 +1,4 @@
-import 'package:examples/playground/hideseek/enemy.dart';
+import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:examples/showcase/dive/entities/item.dart';
 import 'package:examples/showcase/dive/entities/player.dart';
 import 'package:yuka/yuka.dart';

@@ -20,8 +20,14 @@ class YukaConsole {
       debugPrint(message.toString());
     }
   }
-  /// Prints to console if [isVerbose] is true
-  void log(Object? message){
+
+  void verbose(Object? message){
+    if(currentLevel.index <= LoggerLevel.log.index){
+      debugPrint(message.toString());
+    }
+  }
+
+  void info(Object? message){
     if(currentLevel.index <= LoggerLevel.log.index){
       debugPrint(message.toString());
     }

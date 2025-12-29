@@ -31,6 +31,7 @@ class SAssetManager extends AssetManager{
 			weaponMesh?.geometry?.rotateX( math.pi * - 0.5 );
 			weaponMesh?.geometry?.rotateY( math.pi * 0.5 );
       weaponMesh?.geometry?.translate(0.3, -0.3, -1);
+      weaponMesh?.matrixAutoUpdate = false;
 
 			models['weapon'] = weaponMesh;
 

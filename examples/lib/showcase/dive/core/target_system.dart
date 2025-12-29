@@ -1,4 +1,3 @@
-import 'package:examples/showcase/dive/entities/enemy.dart';
 import 'package:yuka/yuka.dart';
 
 
@@ -94,8 +93,8 @@ class TargetSystem {
 	}
 
 	/// Returns the current target if there is one.
-	Enemy getTarget() {
-		return _currentRecord.entity;
+	getTarget() {
+		return _currentRecord?.entity;
 	}
 
 	/// Returns true if the enemy has an active target.

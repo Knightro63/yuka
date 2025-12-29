@@ -1,10 +1,11 @@
+import 'package:examples/showcase/dive/core/weapon_system.dart';
+import 'package:examples/showcase/dive/core/world.dart';
 import 'package:examples/showcase/dive/weapons/projectile.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'dart:math' as math;
 import 'package:yuka/yuka.dart';
 import 'package:examples/showcase/dive/core/config.dart';
 import 'package:examples/showcase/dive/core/constants.dart';
-import 'package:examples/showcase/dive/entities/item.dart';
 
 /// Class for representing the human player of the game.
 ///
@@ -18,11 +19,11 @@ class Player extends MovingEntity {
   final lookDirection = Vector3();
   final cross = Vector3();
 
-  dynamic world;
+  World world;
   
   double currentTime = 0;
-  double health = config['PLAYER']['MAX_HEALTH'];
-  double maxHealth = config['PLAYER']['MAX_HEALTH'];
+  int health = config['PLAYER']['MAX_HEALTH'];
+  int maxHealth = config['PLAYER']['MAX_HEALTH'];
   double endTimeDying = double.infinity;
   double dyingTime = config['PLAYER']['DYING_TIME'];
   double height = config['PLAYER']['HEAD_HEIGHT'];
@@ -33,7 +34,7 @@ class Player extends MovingEntity {
 	final bounds = AABB();
 	final boundsDefinition = AABB( Vector3( - 0.25, 0, - 0.25 ), Vector3( 0.25, 1.8, 0.25 ) );
 
-  int status = STATUS_ALIVE;
+  CharcterStatus status = CharcterStatus.alive;
 
   late final WeaponSystem weaponSystem;
   Polygon? currentRegion;
@@ -73,7 +74,7 @@ class Player extends MovingEntity {
 		stayInLevel();
 
 		//
-		if ( status == STATUS_ALIVE ) {
+		if ( status == CharcterStatus.alive ) {
 			// update weapon system
 			weaponSystem.updateWeaponChange();
 
@@ -82,23 +83,24 @@ class Player extends MovingEntity {
 		}
 
 		//
-		if ( status == STATUS_DYING ) {
+		if ( status == CharcterStatus.dying ) {
 			if ( currentTime >= endTimeDying ) {
-				status = STATUS_DEAD;
+				status = CharcterStatus.dead;
 				endTimeDying = double.infinity;
 			}
 		}
 
 		//
-		if ( status == STATUS_DEAD ) {
+		if ( status == CharcterStatus.dead ) {
 			if ( world.debug ) yukaConsole.info( 'DIVE.Player: Player died.' );
 			reset();
 			world.spawningManager.respawnCompetitor( this );
-			world.fpsControls.sync();
+			world.fpsControls?.sync();
 		}
 
 		//
 	  mixer?.update( delta );
+    (head.renderComponent as three.Object3D).updateMatrix();
 
 		return this;
 	}
@@ -106,11 +108,11 @@ class Player extends MovingEntity {
 	/// Resets the player after a death.
 	Player reset() {
 		health = maxHealth;
-	  status = STATUS_ALIVE;
+	  status = CharcterStatus.alive;
 
 		weaponSystem.reset();
 
-		world.fpsControls.reset();
+		world.fpsControls?.reset();
 
 		world.uiManager.showFPSInterface();
 
@@ -123,7 +125,7 @@ class Player extends MovingEntity {
 
 	/// Inits the death of the player.
 	Player initDeath() {
-		status = STATUS_DYING;
+		status = CharcterStatus.dying;
 		endTimeDying = currentTime + dyingTime;
 
 		velocity.set( 0, 0, 0 );
@@ -133,7 +135,7 @@ class Player extends MovingEntity {
 
 		weaponSystem.hideCurrentWeapon();
 
-		world.fpsControls.active = false;
+		world.fpsControls?.active = false;
 		world.uiManager.hideFPSInterface();
 
 		return this;
@@ -175,26 +177,26 @@ class Player extends MovingEntity {
 	}
 
 	/// Changes the weapon to the defined type.
-	Player changeWeapon(int type ) {
+	Player changeWeapon(ItemType type ) {
 		weaponSystem.setNextWeapon( type );
 		return this;
 	}
 
 	/// Returns true if the player has a weapon of the given type.
-	bool hasWeapon(int type ) {
+	bool hasWeapon(ItemType type ) {
 		return weaponSystem.getWeapon( type ) != null;
 	}
 
 	/// Indicates if the player does currently use an automatic weapon.
 	bool isAutomaticWeaponUsed() {
-		return ( weaponSystem.currentWeapon.type == WEAPON_TYPES_ASSAULT_RIFLE );
+		return ( weaponSystem.currentWeapon?.type == ItemType.assaultRifle );
 	}
 
 	/// Activates this game entity. Enemies will shot at the player and
   /// the current weapon is rendered.
 	Player activate() {
 		active = true;
-		weaponSystem.currentWeapon.renderComponent.visible = true;
+		weaponSystem.currentWeapon?.renderComponent?.visible = true;
 
 		return this;
 	}
@@ -203,7 +205,7 @@ class Player extends MovingEntity {
 	/// the current weapon is not rendered.
 	Player deactivate() {
 		active = false;
-		weaponSystem.currentWeapon.renderComponent.visible = false;
+		weaponSystem.currentWeapon?.renderComponent?.visible = false;
 
 		return this;
 	}
@@ -250,11 +252,13 @@ class Player extends MovingEntity {
 			yukaConsole.info( 'DIVE.Player: Entity with ID $uuid receives $amount health points.');
 		}
 
+    world.updateUI();
+
 		return this;
 	}
 
 	/// Adds the given weapon to the internal weapon system.
-	Player addWeapon(int type ) {
+	Player addWeapon(ItemType type ) {
 		weaponSystem.addWeapon( type );
 
 		// if the entity already has the weapon, increase the ammo
@@ -274,7 +278,7 @@ class Player extends MovingEntity {
 			action?.loop = three.LoopOnce;
 			action?.name = clip.name;
 
-			animations[action.name] = action;
+			animations[action?.name ?? ''] = action;
 		}
 
 		return this;
@@ -284,9 +288,9 @@ class Player extends MovingEntity {
   @override
 	bool handleMessage(Telegram telegram ) {
 		switch ( telegram.message ) {
-			case MESSAGE_HIT:
+			case 'hit':
 				// reduce health
-				health -= telegram.data?['damage'];
+				health = (health - telegram.data?['damage']).toInt();
 
 				// update UI
 				world.uiManager.updateHealthStatus();
@@ -297,7 +301,7 @@ class Player extends MovingEntity {
 				}
 
 				// check if the player is dead
-				if ( health <= 0 && status == STATUS_ALIVE ) {
+				if ( health <= 0 && status == CharcterStatus.alive ) {
 					initDeath();
 
 					// inform all other competitors about its death
@@ -305,7 +309,7 @@ class Player extends MovingEntity {
 
 					for ( int i = 0, l = competitors.length; i < l; i ++ ) {
 						final competitor = competitors[ i ];
-						if ( this != competitor ) sendMessage( competitor, MESSAGE_DEAD );
+						if ( this != competitor ) sendMessage( competitor, Message.dead.name );
 					}
 
 					// update UI

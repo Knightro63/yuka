@@ -1,19 +1,22 @@
+import 'package:examples/showcase/dive/core/world.dart';
 import 'package:yuka/yuka.dart';
+
+final Ray _ray = Ray();
 
 /// Base class for representing a projectile.
 ///
 /// @author {@link https://github.com/Mugen87|Mugen87}
 class Projectile extends MovingEntity {
-  GameEntity owner;
+  GameEntity? owner;
   late final Ray ray;
   final intersectionPoint = Vector3();
-
+  final normal = Vector3();
   double lifetime = 0;
   double currentTime = 0;
-  double damage = 0;
+  int damage = 0;
 
 	/// finalructs a new projectile with the given values.
-	Projectile(this.owner, Ray? ray):super() {
+	Projectile([this.owner, Ray? ray]):super() {
     this.ray = ray ?? Ray();
 		canActivateTrigger = false;
 	}
@@ -27,10 +30,16 @@ class Projectile extends MovingEntity {
 		return this;
 	}
 
+	/// Returns the intesection point if a projectile intersects with this entity.
+	/// If no intersection is detected, null is returned.
+	Vector3? checkProjectileIntersection(Ray ray, Vector3 intersectionPoint ) {
+		return null;
+	}
+
 	/// Update method of this projectile.
   @override
 	Projectile update(double delta ) {
-		final world = (owner as dynamic).world;
+		final World world = (owner as dynamic).world;
 
 		currentTime += delta;
 
@@ -38,8 +47,8 @@ class Projectile extends MovingEntity {
 			world.remove( this );
 		} 
     else {
-			ray.copy( ray );
-			ray.origin.copy( position );
+			_ray.copy( ray );
+			_ray.origin.copy( position );
 
 			super.update( delta );
 
@@ -47,13 +56,12 @@ class Projectile extends MovingEntity {
 
 			if ( entity != null ) {
 				// calculate distance from origin to intersection point
-				final distanceToIntersection = ray.origin.squaredDistanceTo( intersectionPoint );
-				final validDistance = ray.origin.squaredDistanceTo( position );
+				final distanceToIntersection = _ray.origin.squaredDistanceTo( intersectionPoint );
+				final validDistance = _ray.origin.squaredDistanceTo( position );
 
 				if ( distanceToIntersection <= validDistance ) {
 					// inform game entity about hit
-					owner.sendMessage( entity, 'MESSAGE_HIT', 0, { 'damage': damage, 'direction': ray.direction } );
-
+					owner?.sendMessage( entity, 'hit', 0, { 'damage': damage, 'direction': ray.direction } );
 					// remove projectile from world
 					world.remove( this );
 				}

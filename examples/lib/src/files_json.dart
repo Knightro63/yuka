@@ -116,4 +116,10 @@ const Map<String,Map<String,Map<String,String>>> filesJson = {
     },
 
   },
+  'Showcase':{
+    'dive':{
+      'name': 'Dive',
+      'description': 'Usage of triggers to dynamically generate actions in the game world.' 
+    },
+  },
 };

@@ -32,6 +32,7 @@ analysis_options.yaml
 */android
 */linux
 */windows
+*/test
 
 # Flutter repo-specific
 /bin/cache/

@@ -14,6 +14,7 @@ import 'package:examples/navigation/nav_advanced.dart';
 import 'package:examples/navigation/nav_basic.dart';
 import 'package:examples/playground/hideseek/hideseek.dart';
 import 'package:examples/playground/shooter/shooter.dart';
+import 'package:examples/showcase/dive/dive.dart';
 import 'package:examples/steering/arriving.dart';
 import 'package:examples/steering/flee.dart';
 import 'package:examples/steering/flocking.dart';
@@ -100,14 +101,14 @@ class MyAppState extends State<MyApp> {
       SizedBox(width: 20),
       InkWell(
         onTap: (){
-          launchUrl(Uri.parse('https://pub.dev/documentation/three_js/latest/three_js/'));
+          launchUrl(Uri.parse('https://pub.dev/documentation/yuka/latest/yuka/'));
         },
         child: Text('Documentation'),
       ),
       SizedBox(width: 20),
       InkWell(
         onTap: (){
-          launchUrl(Uri.parse('https://github.com/Knightro63/three_js'));
+          launchUrl(Uri.parse('https://github.com/Knightro63/yuka'));
         },
         child: Text('GitHub'),
       )
@@ -246,6 +247,9 @@ class MyAppState extends State<MyApp> {
               },
               '/hideseek':(BuildContext context) {
                 return const HideSeek();
+              },
+              '/dive':(BuildContext context) {
+                return const Dive();
               },
             }
           ),
