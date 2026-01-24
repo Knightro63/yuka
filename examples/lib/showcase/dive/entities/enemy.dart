@@ -20,10 +20,10 @@ class Enemy extends Vehicle {
   final positiveWeightings = [];
   final weightings = <double>[ 0, 0, 0, 0 ];
   final List<Map<String,dynamic>> directions = [
-    { 'direction': Vector3( 0, 0, 1 ), 'name': 'soldier_forward' },
-    { 'direction': Vector3( 0, 0, - 1 ), 'name': 'soldier_backward' },
-    { 'direction': Vector3( - 1, 0, 0 ), 'name': 'soldier_left' },
-    { 'direction': Vector3( 1, 0, 0 ), 'name': 'soldier_right' }
+    { 'direction': Vector3(   0,   0,   1 ), 'name': 'soldier_forward' },
+    { 'direction': Vector3(   0,   0, - 1 ), 'name': 'soldier_backward' },
+    { 'direction': Vector3( - 1,   0,   0 ), 'name': 'soldier_left' },
+    { 'direction': Vector3(   1,   0,   0 ), 'name': 'soldier_right' }
   ];
   final lookDirection = Vector3();
   final moveDirection = Vector3();

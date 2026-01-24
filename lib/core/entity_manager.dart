@@ -244,7 +244,7 @@ class EntityManager {
 					entity = Vehicle().fromJSON( entityJSON );
 					break;
 				case 'Trigger':
-					entity = Trigger().fromJSON( entityJSON );
+					entity = TriggerEntity().fromJSON( entityJSON );
 					break;
 				default:
 

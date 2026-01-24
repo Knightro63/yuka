@@ -1,12 +1,15 @@
 # yuka &middot;
 
 [![Pub Version](https://img.shields.io/pub/v/yuka)](https://pub.dev/packages/yuka)
-[![analysis](https://github.com/Knightro63/yuka/actions/workflows/flutter.yml/badge.svg)](https://github.com/Knightro63//yuka/actions/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
 Yuka is a library for developing Game AI (based on [yuka](https://github.com/Mugen87/yuka)).
 
 ## Features
+
+![Picture of Hide and Seek.](https://raw.githubusercontent.com/Knightro63/yuka/master/examples/assets/screenshots/hideseek.png)
+![Picture of Target Practice.](https://raw.githubusercontent.com/Knightro63/yuka/master/examples/assets/screenshots/shooter.png)
+![Picture of Weapon Selection.](https://raw.githubusercontent.com/Knightro63/yuka/master/examples/assets/screenshots/fuzzy.png)
 
 This is a dart conversion of yuka, originally created by [@Mugen87](https://github.com/Mugen87).
 

@@ -324,6 +324,8 @@ class HomePageState extends State<HomePage> {
     deviceHeight = MediaQuery.of(context).size.height;
     deviceWidth = MediaQuery.of(context).size.width;
 
+    double wrapWidth = (deviceWidth - 100)/3 < 320 ? 320 : (deviceWidth - 100)/3;
+
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsetsGeometry.fromLTRB(50, 20, 50, 0),
@@ -365,13 +367,31 @@ class HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            SizedBox(
+              width: deviceWidth,
+            child: Wrap(
+              runSpacing: 50,
+              // spacing: 10,
+              runAlignment: WrapAlignment.spaceBetween,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.start,
               children: [
                 SizedBox(
-                  width: (deviceWidth-100)/3,
+                  width: wrapWidth,
                   child: Column(
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            child: Image.asset('assets/screenshots/goal.png',width: 150),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            child: Image.asset('assets/screenshots/fuzzy.png',width: 150),
+                          ),
+                        ],
+                      ),
                       Text(
                         'Autonomous Agent Design',
                         textAlign: TextAlign.center,
@@ -386,9 +406,21 @@ class HomePageState extends State<HomePage> {
                   )
                 ),
                 SizedBox(
-                  width: (deviceWidth-100)/3,
+                  width: wrapWidth,
                   child: Column(
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            child: Image.asset('assets/screenshots/steering_flocking.png',width: 150),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            child: Image.asset('assets/screenshots/steering_follow.png',width: 150),
+                          ),
+                        ],
+                      ),
                       Text(
                         'Steering and Navigation',
                         textAlign: TextAlign.center,
@@ -403,9 +435,21 @@ class HomePageState extends State<HomePage> {
                   )
                 ),
                 SizedBox(
-                  width: (deviceWidth-100)/3,
+                  width: wrapWidth,
                   child: Column(
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            child: Image.asset('assets/screenshots/trigger.png',width: 150),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            child: Image.asset('assets/screenshots/memory_system.png',width: 150),
+                          ),
+                        ],
+                      ),
                       Text(
                         'Perception and Triggers',
                         textAlign: TextAlign.center,
@@ -420,6 +464,7 @@ class HomePageState extends State<HomePage> {
                   )
                 )
               ],
+            )
             ),
             Container(
               margin: EdgeInsets.only(top: 50),
@@ -518,24 +563,34 @@ class ExamplesPageState extends State<Examples> {
           child: Text(
             key,
             style: Theme.of(context).primaryTextTheme.bodyLarge?.copyWith(fontStyle: FontStyle.italic),
-          ),
         ),
-      );
+      ),
+    ); 
 
       for(String key in section.keys){
         final name = section[key]!['name']!;
         final description = section[key]!['description']!;
 
         widgets.add(
-          InkWell(
-            onTap: (){
-              widget.callback(key,controller.offset);
-            },
-            child: Text(
-              name,
-              style: Theme.of(context).primaryTextTheme.bodyMedium?.copyWith(color: Colors.red),
-            )
-          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 220,
+                child: Image.asset('assets/screenshots/$key.png', width: 150),
+              ),
+              InkWell(
+                onTap: (){
+                  widget.callback(key,controller.offset);
+                },
+                child: Text(
+                  name,
+                  style: Theme.of(context).primaryTextTheme.bodyMedium?.copyWith(color: Colors.red),
+                )
+              ),
+            ]
+          )
         );
         widgets.add(
           Container(

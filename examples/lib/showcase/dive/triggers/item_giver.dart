@@ -4,7 +4,7 @@ import 'package:yuka/yuka.dart';
 /// Gives an entity an item if it touches the trigger region.
 ///
 /// @author {@link https://github.com/robp94|robp94}
-class ItemGiver extends Trigger {
+class ItemGiver extends TriggerEntity {
   final Item item;
 	ItemGiver( super.region, this.item );
 

@@ -4,19 +4,10 @@ import './trigger_region.dart';
 import 'regions/rectangular_trigger_region.dart';
 import 'regions/spherical_trigger_region.dart';
 
-/// Base class for representing triggers. A trigger generates an action if a game entity
-/// touches its trigger region, a predefine area in 3D space.
-///
-/// @author {@link https://github.com/Mugen87|Mugen87}
-class Trigger extends GameEntity {
+
+mixin Trigger on GameEntity {
   final Map<String,dynamic> _typesMap = {};
   late TriggerRegion region;
-
-	/// Constructs a new trigger with the given values.
-	Trigger([TriggerRegion? region]):super() {
-    this.region = region ?? TriggerRegion();
-    canActivateTrigger = false;
-	}
 
 	/// This method is called per simulation step for all game entities. If the game
   /// entity touches the region of the trigger, the respective action is executed.
@@ -85,5 +76,17 @@ class Trigger extends GameEntity {
 	Trigger registerType(String type, constructor ) {
 		_typesMap[type] = constructor;
 		return this;
+	}
+}
+
+/// Base class for representing triggers. A trigger generates an action if a game entity
+/// touches its trigger region, a predefine area in 3D space.
+///
+/// @author {@link https://github.com/Mugen87|Mugen87}
+class TriggerEntity extends GameEntity with Trigger {
+	/// Constructs a new trigger with the given values.
+	TriggerEntity([TriggerRegion? region]):super() {
+    this.region = region ?? TriggerRegion();
+    canActivateTrigger = false;
 	}
 }
